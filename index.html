@@ -1,268 +1,141 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Clock-Money v2.3</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { background: #050507; font-family: system-ui, sans-serif; }
-   .mono { font-family: monospace; }
-   .glass {
-      background: rgba(24,24,27,0.8);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clock-Money v2.4</title>
+<script src="https://cdn.tailwindcss.com"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>body{background:#050507}.mono{font-family:monospace}.glass{background:rgba(24,24,27,.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08)}.tab-active{background:white;color:black}.tab{border:1px solid rgba(255,255,255,.1)}</style>
 </head>
-<body class="text-white p-4">
+<body class="text-white p-3 md:p-6">
 <div class="max-w-7xl mx-auto">
+<div class="flex justify-between items-center py-3"><h1 class="text-2xl font-bold">⏰ CLOCK-MONEY <span class="text-emerald-400">v2.4</span></h1><div id="totalGeral" class="mono text-sm bg-emerald-500/20 px-3 py-1 rounded-full"></div></div>
 
-  <h1 class="text-3xl font-bold py-4">⏰ CLOCK-MONEY <span class="text-emerald-400">v2.3</span></h1>
+<!-- ABAS -->
+<div class="flex gap-2 overflow-auto pb-2 mt-2" id="abas"></div>
 
-  <div class="grid lg:grid-cols-[1.8fr_1fr] gap-6">
+<div class="grid lg:grid-cols-[1.8fr_1fr] gap-6 mt-4">
+<div class="space-y-6">
+<div class="glass rounded-[32px] p-8 md:p-10 text-center">
+<div class="text-[10px] opacity-40 tracking-widest">CARTEIRA: <span id="nomeCarteiraAtiva"></span> • RENDENDO DESDE 00:00</div>
+<div id="valor" class="mono text-5xl md:text-6xl font-bold text-emerald-400 mt-4">R$ 0,0000</div>
+<div id="info" class="mono text-xs mt-3 opacity-60"></div>
+<div class="grid grid-cols-3 gap-3 mt-8">
+<div class="bg-black/60 rounded-2xl p-4"><div id="hoje" class="mono font-bold">R$ 0,00</div><div class="text-[10px] opacity-40">HOJE</div></div>
+<div class="bg-black/60 rounded-2xl p-4"><div id="mes" class="mono font-bold">R$ 0</div><div class="text-[10px] opacity-40">MÊS</div></div>
+<div class="bg-black/60 rounded-2xl p-4"><div id="ano" class="mono font-bold">R$ 0</div><div class="text-[10px] opacity-40">ANO</div></div>
+</div>
+</div>
+<div class="glass rounded-2xl p-5"><canvas id="graf" height="110"></canvas></div>
+</div>
 
-    <!-- ESQUERDA -->
-    <div class="space-y-6">
-      <div class="glass rounded-[32px] p-10 text-center">
-        <div class="text-[10px] tracking-widest opacity-40">RENDENDO DESDE 00:00</div>
-        <div id="valor" class="mono text-6xl font-bold text-emerald-400 mt-4">R$ 0,0000</div>
-        <div id="info" class="mono text-sm mt-3 opacity-60">Adicione ativos</div>
-        <div class="grid grid-cols-3 gap-3 mt-8">
-          <div class="bg-black/60 rounded-2xl p-4">
-            <div id="hoje" class="mono font-bold">R$ 0,00</div>
-            <div class="text-[10px] opacity-40">HOJE</div>
-          </div>
-          <div class="bg-black/60 rounded-2xl p-4">
-            <div id="mes" class="mono font-bold">R$ 0</div>
-            <div class="text-[10px] opacity-40">MÊS</div>
-          </div>
-          <div class="bg-black/60 rounded-2xl p-4">
-            <div id="ano" class="mono font-bold">R$ 0</div>
-            <div class="text-[10px] opacity-40">ANO</div>
-          </div>
-        </div>
-      </div>
-      <div class="glass rounded-2xl p-5">
-        <canvas id="graf" height="120"></canvas>
-      </div>
-    </div>
+<div class="glass rounded-[32px] p-6">
+<div class="flex gap-2 mb-4">
+<button onclick="setTipo('B3')" id="btnB3" class="flex-1 p-2.5 rounded-xl bg-white text-black font-bold text-sm">B3</button>
+<button onclick="setTipo('FIXA')" id="btnFIXA" class="flex-1 p-2.5 rounded-xl tab text-sm">CDI / POUPANÇA</button>
+</div>
 
-    <!-- DIREITA -->
-    <div class="glass rounded-[32px] p-6">
-      <h3 class="font-bold">Adicionar ativo</h3>
+<!-- FORM B3 -->
+<div id="formB3">
+<input id="busca" class="w-full bg-black border border-white/20 rounded-2xl p-4 outline-none" placeholder="MXRF11, WEGE3..." oninput="buscar(this.value)" onfocus="buscar(this.value)">
+<div id="sugestoes" class="bg-zinc-800 rounded-2xl mt-2 hidden border border-white/10 overflow-hidden"></div>
+<div id="ativoInfo" class="hidden mt-3 bg-black/50 p-3 rounded-xl text-sm"><span id="ativoNome" class="font-bold"></span> <span id="ativoPreco" class="text-emerald-400 mono"></span><div id="ativoDY" class="text-[11px] opacity-60"></div></div>
+<div class="grid grid-cols-2 gap-3 mt-4">
+<div><div class="text-[10px] opacity-50">QTD</div><input id="qtd" type="number" class="w-full bg-black border border-white/20 rounded-2xl p-3 font-bold" placeholder="0" oninput="onQtdChange()"></div>
+<div><div class="text-[10px] opacity-50">TOTAL R$</div><input id="total" type="number" class="w-full bg-black border border-emerald-500/40 rounded-2xl p-3 font-bold text-emerald-400" placeholder="0,00" oninput="onTotalChange()"></div>
+</div>
+</div>
 
-      <input id="busca"
-        class="w-full bg-black border border-white/20 rounded-2xl p-4 mt-4 outline-none focus:border-emerald-400"
-        placeholder="Buscar: MXRF11, HGLG11, WEGE3..."
-        oninput="buscar(this.value)"
-        onfocus="buscar(this.value)">
+<!-- FORM RENDA FIXA -->
+<div id="formFIXA" class="hidden space-y-3">
+<select id="tipoFixa" class="w-full bg-black border border-white/20 rounded-2xl p-4" onchange="trocaFixa()">
+<option value="CDI_100">Nubank / 100% CDI (12,15% a.a.)</option>
+<option value="CDI_120">CDB 120% CDI (14,58% a.a.)</option>
+<option value="CDI_110">CDB 110% CDI (13,36% a.a.)</option>
+<option value="POUP">Poupança (7,5% a.a.)</option>
+<option value="SELIC">Tesouro Selic (11,75% a.a.)</option>
+<option value="CUSTOM">Personalizado (% a.a.)</option>
+</select>
+<input id="nomeFixa" class="w-full bg-black border border-white/20 rounded-2xl p-4" placeholder="Nome: Ex: Reserva Nubank">
+<div class="grid grid-cols-2 gap-3">
+<input id="taxaFixa" type="number" step="0.01" class="w-full bg-black border border-white/20 rounded-2xl p-4 mono" placeholder="Taxa % a.a.">
+<input id="valorFixa" type="number" step="0.01" class="w-full bg-black border border-emerald-500/40 rounded-2xl p-4 mono font-bold text-emerald-400" placeholder="Valor R$">
+</div>
+</div>
 
-      <div id="sugestoes" class="bg-zinc-800 rounded-2xl mt-2 hidden border border-white/10 overflow-hidden"></div>
-
-      <!-- Info do ativo selecionado -->
-      <div id="ativoInfo" class="hidden mt-4 bg-black/50 p-3 rounded-xl">
-        <div class="flex justify-between">
-          <span id="ativoNome" class="font-bold"></span>
-          <span id="ativoPreco" class="text-emerald-400 mono text-sm"></span>
-        </div>
-        <div id="ativoDY" class="text-[11px] opacity-60 mt-1"></div>
-      </div>
-
-      <!-- CALCULADORA -->
-      <div class="grid grid-cols-2 gap-3 mt-4">
-        <div>
-          <div class="text-[10px] opacity-50 mb-1">QUANTIDADE</div>
-          <input id="qtd" type="number"
-            class="w-full bg-black border border-white/20 rounded-2xl p-4 text-lg font-bold outline-none focus:border-white/40"
-            placeholder="0"
-            oninput="onQtdChange()">
-        </div>
-        <div>
-          <div class="text-[10px] opacity-50 mb-1">TOTAL R$</div>
-          <input id="total" type="number" step="0.01"
-            class="w-full bg-black border border-emerald-500/40 rounded-2xl p-4 text-lg font-bold text-emerald-400 outline-none focus:border-emerald-400"
-            placeholder="0,00"
-            oninput="onTotalChange()">
-        </div>
-      </div>
-
-      <div id="preview" class="mono text-xs bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl mt-4 hidden"></div>
-
-      <button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4 hover:bg-emerald-400 transition">
-        + ADICIONAR
-      </button>
-
-      <div id="lista" class="mt-6 space-y-2"></div>
-    </div>
-  </div>
+<div id="preview" class="mono text-xs bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl mt-4 hidden"></div>
+<button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4">+ ADICIONAR NESTA CARTEIRA</button>
+<div id="lista" class="mt-6 space-y-2"></div>
+</div>
+</div>
 </div>
 
 <script>
-const TOKEN = "qtZQumqzTgLyLYyMd5Ph9n";
-const POPULARES = ["MXRF11","HGLG11","KNRI11","XPLG11","BCFF11","PETR4","VALE3","WEGE3","ITUB4","BBAS3","MGLU3","B3SA3","TAEE11","ITSA4"];
-let carteira = JSON.parse(localStorage.getItem('carteiraB3v2') || '[]');
-let sel = null;
-let inicio = new Date(); inicio.setHours(0,0,0,0);
-let chart, chartData = [];
-let trava = false; // evita loop infinito entre os dois campos
+const TOKEN="qtZQumqzTgLyLYyMd5Ph9n";
+const POPULARES=["MXRF11","HGLG11","KNRI11","XPLG11","BCFF11","PETR4","VALE3","WEGE3","ITUB4","BBAS3","TAEE11"];
+const TAXAS={CDI_100:12.15,CDI_120:14.58,CDI_110:13.36,POUP:7.5,SELIC:11.75};
+let carteiras=JSON.parse(localStorage.getItem('carteirasV24')||'null')||[{id:1,nome:'FIIs',ativos:[]},{id:2,nome:'Ações',ativos:[]},{id:3,nome:'Reserva CDI',ativos:[]}];
+let ativaId=parseInt(localStorage.getItem('ativaId')||'1');
+let sel=null, tipoAtivo='B3', trava=false, inicio=new Date(); inicio.setHours(0,0,0,0); let chart, chartData=[];
 
-function buscar(q){
-  const d = document.getElementById('sugestoes');
-  const termo = (q || '').toUpperCase();
-  let lista = POPULARES.filter(t => t.includes(termo)).slice(0,8);
-  if(termo.length === 0) lista = POPULARES.slice(0,8);
-  if(lista.length === 0) lista = [termo];
-  d.innerHTML = lista.map(t => `<div class="p-4 hover:bg-white/10 cursor-pointer" onclick="selecionar('${t}')"><b>${t}</b></div>`).join('');
-  d.classList.remove('hidden');
+function save(){localStorage.setItem('carteirasV24',JSON.stringify(carteiras));localStorage.setItem('ativaId',ativaId);}
+
+function renderAbas(){
+  const el=document.getElementById('abas');
+  el.innerHTML=carteiras.map(c=>`<button onclick="trocaAba(${c.id})" class="px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap ${c.id===ativaId?'tab-active':'tab'}">${c.nome} <span class="opacity-60 text-xs">R$${(c.ativos.reduce((a,b)=>a+b.rendDia,0)*30).toFixed(0)}/mês</span></button>`).join('')+`<button onclick="novaAba()" class="px-4 py-2.5 rounded-full tab text-sm">+ Nova</button>`;
+  document.getElementById('nomeCarteiraAtiva').innerText=carteiras.find(c=>c.id===ativaId)?.nome||'';
+  const totalGeral=carteiras.reduce((a,c)=>a+c.ativos.reduce((x,y)=>x+y.rendDia,0),0);
+  document.getElementById('totalGeral').innerText=`TOTAL: R$ ${totalGeral.toFixed(2)}/dia • R$ ${(totalGeral*30).toFixed(0)}/mês`;
 }
+function trocaAba(id){ativaId=id; save(); renderAbas(); renderLista(); document.getElementById('qtd').value='';document.getElementById('total').value='';}
+function novaAba(){const nome=prompt('Nome da nova carteira: Ex: Aposentadoria, Gringa, Cripto'); if(!nome) return; const id=Date.now(); carteiras.push({id,nome,ativos:[]}); ativaId=id; save(); renderAbas(); renderLista();}
 
-async function getDadosBrapi(t){
-  try{
-    const r = await fetch(`https://brapi.dev/api/quote/${t}?token=${TOKEN}&dividends=true`);
-    const j = await r.json();
-    return j.results?.[0] || null;
-  }catch(e){ return null; }
-}
+function setTipo(t){tipoAtivo=t; document.getElementById('btnB3').className=t==='B3'?'flex-1 p-2.5 rounded-xl bg-white text-black font-bold text-sm':'flex-1 p-2.5 rounded-xl tab text-sm'; document.getElementById('btnFIXA').className=t==='FIXA'?'flex-1 p-2.5 rounded-xl bg-white text-black font-bold text-sm':'flex-1 p-2.5 rounded-xl tab text-sm'; document.getElementById('formB3').classList.toggle('hidden',t!=='B3'); document.getElementById('formFIXA').classList.toggle('hidden',t!=='FIXA'); if(t==='FIXA') trocaFixa();}
+function trocaFixa(){const tipo=document.getElementById('tipoFixa').value; if(TAXAS[tipo]) document.getElementById('taxaFixa').value=TAXAS[tipo]; if(tipo==='CUSTOM') document.getElementById('taxaFixa').focus();}
 
-async function getPrecoProxy(t){
-  try{
-    const url = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${t}.SA?range=1d&interval=1d`);
-    const r = await fetch(`https://api.allorigins.win/raw?url=${url}`);
-    const j = await r.json();
-    return j.chart?.result?.[0]?.meta?.regularMarketPrice || null;
-  }catch(e){ return null; }
-}
+function buscar(q){const d=document.getElementById('sugestoes');const termo=(q||'').toUpperCase();let lista=POPULARES.filter(t=>t.includes(termo)).slice(0,8);if(termo.length===0) lista=POPULARES.slice(0,6);if(lista.length===0) lista=[termo];d.innerHTML=lista.map(t=>`<div class="p-3 hover:bg-white/10 cursor-pointer" onclick="selecionar('${t}')">${t}</div>`).join('');d.classList.remove('hidden');}
+async function getDadosBrapi(t){try{const r=await fetch(`https://brapi.dev/api/quote/${t}?token=${TOKEN}&dividends=true`);const j=await r.json();return j.results?.[0]||null;}catch(e){return null;}}
+async function getPrecoProxy(t){try{const url=encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${t}.SA?range=1d`);const r=await fetch(`https://api.allorigins.win/raw?url=${url}`);const j=await r.json();return j.chart?.result?.[0]?.meta?.regularMarketPrice||null;}catch(e){return null;}}
+async function selecionar(t){document.getElementById('busca').value=t;document.getElementById('sugestoes').classList.add('hidden');const prev=document.getElementById('preview');prev.classList.remove('hidden');prev.innerHTML=`Buscando ${t}...`;const dados=await getDadosBrapi(t);let preco=dados?.regularMarketPrice||await getPrecoProxy(t)|| (t.includes('11')?10.25:42.60);let dy=0.06,dyTxt="6% estimado";if(dados?.dividendsData?.cashDividends?.length){const data12m=new Date();data12m.setFullYear(data12m.getFullYear()-1);const soma= dados.dividendsData.cashDividends.filter(d=>new Date(d.paymentDate)>data12m).reduce((a,b)=>a+(b.rate||0),0);if(soma>0){dy=soma/preco;dyTxt=`${(dy*100).toFixed(2)}% a.a.`;}}else if(t.includes('11')){dy=0.12;dyTxt="12% FII";}sel={ticker:t,preco,dy,dyTxt,rendDia:preco*dy/365};document.getElementById('ativoInfo').classList.remove('hidden');document.getElementById('ativoNome').innerText=t;document.getElementById('ativoPreco').innerText=`R$ ${preco.toFixed(2)}`;document.getElementById('ativoDY').innerText=dyTxt;prev.innerHTML=`${t} • R$ ${preco.toFixed(2)} • ${dyTxt}`;}
 
-async function selecionar(t){
-  document.getElementById('busca').value = t;
-  document.getElementById('sugestoes').classList.add('hidden');
-  const prev = document.getElementById('preview');
-  prev.classList.remove('hidden');
-  prev.innerHTML = `Buscando ${t}...`;
-
-  const dados = await getDadosBrapi(t);
-  let preco = dados?.regularMarketPrice || await getPrecoProxy(t);
-  if(!preco){
-    preco = t.includes('11')? 10.25 : 42.60;
-  }
-
-  let dy = 0.06;
-  let dyTxt = "6% estimado";
-  if(dados?.dividendsData?.cashDividends?.length){
-    const divs = dados.dividendsData.cashDividends;
-    const data12m = new Date(); data12m.setFullYear(data12m.getFullYear()-1);
-    const soma12m = divs.filter(d => new Date(d.paymentDate) > data12m).reduce((a,b) => a + (b.rate||0), 0);
-    if(soma12m > 0){ dy = soma12m / preco; dyTxt = `${(dy*100).toFixed(2)}% a.a. real 12m`; }
-  } else if(t.includes('11')){
-    dy = 0.12; dyTxt = "12% a.a. média FII";
-  }
-
-  sel = { ticker: t, preco, dy, dyTxt, rendDia: (preco*dy/365) };
-
-  document.getElementById('ativoInfo').classList.remove('hidden');
-  document.getElementById('ativoNome').innerText = t;
-  document.getElementById('ativoPreco').innerText = `R$ ${preco.toFixed(2)} / cota`;
-  document.getElementById('ativoDY').innerText = dyTxt;
-
-  prev.innerHTML = `${t} • R$ ${preco.toFixed(2)} • ${dyTxt}<br>R$ ${sel.rendDia.toFixed(4)}/dia por cota`;
-
-  // Limpa calculadora
-  document.getElementById('qtd').value = '';
-  document.getElementById('total').value = '';
-  document.getElementById('qtd').focus();
-}
-
-function onQtdChange(){
-  if(trava ||!sel) return;
-  trava = true;
-  const qtd = parseFloat(document.getElementById('qtd').value) || 0;
-  const total = qtd * sel.preco;
-  document.getElementById('total').value = qtd > 0? total.toFixed(2) : '';
-  trava = false;
-  updatePreview();
-}
-
-function onTotalChange(){
-  if(trava ||!sel) return;
-  trava = true;
-  const total = parseFloat(document.getElementById('total').value) || 0;
-  const qtd = total / sel.preco;
-  document.getElementById('qtd').value = total > 0? Math.floor(qtd) : '';
-  trava = false;
-  updatePreview();
-}
-
-function updatePreview(){
-  if(!sel) return;
-  const qtd = parseInt(document.getElementById('qtd').value) || 0;
-  const prev = document.getElementById('preview');
-  if(qtd > 0){
-    prev.classList.remove('hidden');
-    const totalDia = (sel.preco * sel.dy / 365) * qtd;
-    prev.innerHTML = `${qtd} cotas x R$ ${sel.preco.toFixed(2)} = <b>R$ ${(qtd*sel.preco).toFixed(2)}</b><br>Rende: R$ ${totalDia.toFixed(2)}/dia | R$ ${(totalDia/86400).toFixed(7)}/s`;
-  }
-}
+function onQtdChange(){if(trava||!sel) return;trava=true;const qtd=parseFloat(document.getElementById('qtd').value)||0;document.getElementById('total').value=qtd>0?(qtd*sel.preco).toFixed(2):'';trava=false;updatePreview();}
+function onTotalChange(){if(trava||!sel) return;trava=true;const total=parseFloat(document.getElementById('total').value)||0;document.getElementById('qtd').value=total>0?Math.floor(total/sel.preco):'';trava=false;updatePreview();}
+function updatePreview(){if(!sel) return;const qtd=parseInt(document.getElementById('qtd').value)||0;const prev=document.getElementById('preview');if(qtd>0){prev.classList.remove('hidden');const td=(sel.preco*sel.dy/365)*qtd;prev.innerHTML=`${qtd} x R$ ${sel.preco.toFixed(2)} = R$ ${(qtd*sel.preco).toFixed(2)}<br>Rende R$ ${td.toFixed(2)}/dia`;}}
 
 function adicionar(){
-  const qtd = parseInt(document.getElementById('qtd').value) || 0;
-  if(!sel) return alert('Selecione um ativo primeiro!');
-  if(qtd <= 0) return alert('Digite quantidade ou valor total!');
-  const rendDia = (sel.preco * sel.dy / 365) * qtd;
-  carteira.push({ ticker: sel.ticker, qtd, preco: sel.preco, dy: sel.dy, dyTxt: sel.dyTxt, rendDia });
-  localStorage.setItem('carteiraB3v2', JSON.stringify(carteira));
-  render();
-  document.getElementById('qtd').value = '';
-  document.getElementById('total').value = '';
-  document.getElementById('preview').classList.add('hidden');
-}
-
-function remover(i){
-  carteira.splice(i,1);
-  localStorage.setItem('carteiraB3v2', JSON.stringify(carteira));
-  render();
-}
-
-function initChart(){
-  const ctx = document.getElementById('graf').getContext('2d');
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: { labels: [], datasets: [{ data: [], borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.15)', fill: true, tension: 0.4, pointRadius: 0 }] },
-    options: { plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } }, animation: false }
-  });
-}
-
-function render(){
-  const totalDia = carteira.reduce((a,b) => a + b.rendDia, 0);
-  document.getElementById('lista').innerHTML = carteira.map((c,i) => `
-    <div class="bg-black/60 rounded-xl p-3 flex justify-between text-sm">
-      <div><b>${c.ticker}</b> x${c.qtd} R$${(c.qtd*c.preco).toFixed(2)} <span class="text-emerald-400">${(c.dy*100).toFixed(2)}%</span>
-      <div class="mono text-[10px] text-emerald-400">R$ ${(c.rendDia/86400).toFixed(7)}/s</div></div>
-      <button onclick="remover(${i})">x</button>
-    </div>`).join('');
-  document.getElementById('hoje').innerText = 'R$ ' + totalDia.toFixed(2);
-  document.getElementById('mes').innerText = 'R$ ' + (totalDia*30).toFixed(0);
-  document.getElementById('ano').innerText = 'R$ ' + (totalDia*365).toFixed(0);
-  window.totalDia = totalDia;
-}
-
-setInterval(() => {
-  const seg = (new Date() - inicio) / 1000;
-  const ps = (window.totalDia || 0) / 86400;
-  document.getElementById('valor').innerText = 'R$ ' + (seg*ps).toFixed(4);
-  document.getElementById('info').innerText = ps>0? `R$ ${ps.toFixed(7)}/s | ${carteira.length} ativos` : 'Digite um ativo';
-  if(chart){
-    chartData.push(seg*ps);
-    if(chartData.length > 60) chartData.shift();
-    chart.data.labels = chartData.map((_,i) => i);
-    chart.data.datasets[0].data = chartData;
-    chart.update('none');
+  const carteira=carteiras.find(c=>c.id===ativaId);
+  if(tipoAtivo==='B3'){
+    const qtd=parseInt(document.getElementById('qtd').value)||0;
+    if(!sel||qtd<=0) return alert('Selecione ativo e QTD');
+    carteira.ativos.push({id:Date.now(),tipo:'B3',ticker:sel.ticker,qtd,preco:sel.preco,dy:sel.dy,dyTxt:sel.dyTxt,rendDia:(sel.preco*sel.dy/365)*qtd,nome:sel.ticker});
+  } else {
+    const nome=document.getElementById('nomeFixa').value||document.getElementById('tipoFixa').selectedOptions[0].text;
+    const taxa=parseFloat(document.getElementById('taxaFixa').value)||0;
+    const valor=parseFloat(document.getElementById('valorFixa').value)||0;
+    if(valor<=0||taxa<=0) return alert('Digite taxa e valor');
+    const rendDia=valor*(taxa/100)/365;
+    carteira.ativos.push({id:Date.now(),tipo:'FIXA',ticker:nome,nome,preco:valor,qtd:1,dy:taxa/100,dyTxt:`${taxa.toFixed(2)}% a.a.`,rendDia,taxa,valor});
   }
-}, 250);
+  save(); renderLista(); document.getElementById('qtd').value='';document.getElementById('total').value='';document.getElementById('valorFixa').value='';document.getElementById('preview').classList.add('hidden');
+}
 
-initChart();
-render();
+function removerAtivo(id){const c=carteiras.find(x=>x.id===ativaId);c.ativos=c.ativos.filter(a=>a.id!==id);save();renderLista();}
+
+function renderLista(){
+  const carteira=carteiras.find(c=>c.id===ativaId);
+  if(!carteira) return;
+  document.getElementById('lista').innerHTML=carteira.ativos.map(a=>`<div class="bg-black/60 rounded-xl p-3 flex justify-between text-sm"><div><b>${a.ticker}</b> ${a.tipo==='FIXA'?`• R$${a.valor.toFixed(2)}`:`x${a.qtd}`} <span class="text-emerald-400">${(a.dy*100).toFixed(2)}%</span><div class="mono text-[10px] text-emerald-400">R$ ${(a.rendDia/86400).toFixed(7)}/s</div></div><button onclick="removerAtivo(${a.id})">x</button></div>`).join('')||`<div class="text-xs opacity-30 text-center mt-8">Carteira vazia. Adicione ativos acima.</div>`;
+  const totalDia=carteira.ativos.reduce((a,b)=>a+b.rendDia,0);
+  document.getElementById('hoje').innerText='R$ '+totalDia.toFixed(2);
+  document.getElementById('mes').innerText='R$ '+(totalDia*30).toFixed(0);
+  document.getElementById('ano').innerText='R$ '+(totalDia*365).toFixed(0);
+  window.totalDia=totalDia;
+  renderAbas();
+}
+
+function initChart(){const ctx=document.getElementById('graf').getContext('2d');chart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{data:[],borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.15)',fill:true,tension:.4,pointRadius:0}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}},animation:false}});}
+setInterval(()=>{const seg=(new Date()-inicio)/1000;const ps=(window.totalDia||0)/86400;document.getElementById('valor').innerText='R$ '+(seg*ps).toFixed(4);document.getElementById('info').innerText=ps>0?`R$ ${ps.toFixed(7)}/s • ${carteiras.find(c=>c.id===ativaId)?.ativos.length||0} ativos nesta aba`:'Adicione ativos';if(chart){chartData.push(seg*ps);if(chartData.length>60) chartData.shift();chart.data.labels=chartData.map((_,i)=>i);chart.data.datasets[0].data=chartData;chart.update('none');}},250);
+
+initChart(); renderAbas(); renderLista();
 </script>
 </body>
 </html>
