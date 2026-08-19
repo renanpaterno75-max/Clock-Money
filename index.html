@@ -6,7 +6,21 @@
 <div class="grid md:grid-cols-3 gap-6"><div class="md:col-span-2 bg-zinc-900 rounded-[24px] p-8 border border-white/10 text-center">
 <div class="text-xs opacity-50">RENDENDO AGORA</div><div id="valor" class="mono text-6xl font-bold text-emerald-400 mt-4">R$ 0,0000</div><div id="info" class="mono text-sm mt-2 opacity-60">Adicione um ativo</div>
 <div class="grid grid-cols-3 gap-3 mt-8"><div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">HOJE</div><div id="hoje" class="mono font-bold">R$ 0,00</div></div><div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">MÊS</div><div id="mes" class="mono font-bold">R$ 0,00</div></div><div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">ANO</div><div id="ano" class="mono font-bold">R$ 0,00</div></div></div></div>
-<div class="bg-zinc-900 rounded-[24px] p-5 border border-white/10"><input id="busca" class="w-full bg-black border border-white/10 rounded-xl p-3 outline-none" placeholder="Digite B3SA3, WEGE3..." oninput="buscar(this.value)"><div id="sugestoes" class="bg-zinc-800 rounded-xl mt-2 max-h-52 overflow-auto hidden"></div><input id="qtd" type="number" class="w-full bg-black border border-white/10 rounded-xl p-3 mt-3" placeholder="Quantidade"><div id="preview" class="text-xs mono bg-black p-3 rounded-xl mt-3 hidden"></div><button onclick="adicionar()" class="w-full bg-emerald-400 text-black font-bold rounded-xl p-3 mt-3">Adicionar</button><div id="lista" class="mt-5 space-y-2"></div><button onclick="localStorage.clear();location.reload()" class="w-full mt-4 text-xs opacity-30">Limpar carteira</button></div></div></div>
+<div class="bg-zinc-900 rounded-[24px] p-5 border border-white/10">
+<input id="busca" class="w-full bg-black border border-white/10 rounded-xl p-3 outline-none" placeholder="Digite B3SA3, WEGE3..." oninput="buscar(this.value)">
+<div id="sugestoes" class="bg-zinc-800 rounded-xl mt-2 max-h-52 overflow-auto hidden"></div>
+
+<div class="grid grid-cols-2 gap-3 mt-3">
+<input id="qtd" type="number" class="bg-black border border-white/10 rounded-xl p-3" placeholder="Qtd ex: 100">
+<input id="precoManual" type="number" step="0.01" class="bg-black border border-amber-500/30 rounded-xl p-3" placeholder="Preço opcional ex: 54.30">
+</div>
+<p class="text-[10px] opacity-40 mt-2">💡 Se o preço não puxar, digite manualmente. Se puxar, pode editar.</p>
+
+<div id="preview" class="text-xs mono bg-black p-3 rounded-xl mt-3 hidden"></div>
+<button onclick="adicionar()" class="w-full bg-emerald-400 text-black font-bold rounded-xl p-3 mt-3">Adicionar</button>
+<div id="lista" class="mt-5 space-y-2"></div>
+<button onclick="localStorage.clear();location.reload()" class="w-full mt-4 text-xs opacity-30">Limpar carteira</button>
+</div></div></div>
 <script>
 const TOKEN = "qtZQumqzTgLyLYyMd5Ph9n";
 let carteira = JSON.parse(localStorage.getItem('carteiraB3')||'[]');
@@ -30,37 +44,36 @@ async function selecionar(t){
  let prev=document.getElementById('preview'); prev.classList.remove('hidden'); prev.innerText=`Buscando ${t}...`;
  let preco=null;
  try{
-  let r=await fetch(`https://brapi.dev/api/quote/${t}?token=${TOKEN}&dividends=true&fundamental=true`);
+  let r=await fetch(`https://brapi.dev/api/quote/${t}?token=${TOKEN}&dividends=true`);
   let j=await r.json();
   if(j.results && j.results[0] && j.results[0].regularMarketPrice) preco=j.results[0].regularMarketPrice;
  }catch(e){}
- if(!preco){
-   try{
-    let r2=await fetch(`https://brapi.dev/api/quote/${t}?range=1d&interval=1d`);
-    let j2=await r2.json();
-    if(j2.results && j2.results[0]) preco=j2.results[0].regularMarketPrice;
-   }catch(e){}
- }
+ document.getElementById('precoManual').value = preco? preco.toFixed(2) : "";
  if(preco){
-   let dy=0.06;
-   sel={ticker:t, preco, dy, rendDia:(preco*dy/365)};
-   prev.innerHTML=`<b>${t}</b> ✅ R$ ${preco.toFixed(2)}<br>DY ~${(dy*100).toFixed(1)}% | R$ ${sel.rendDia.toFixed(4)}/dia por cota`;
+   sel={ticker:t, preco, dy:0.06, rendDia:(preco*0.06/365)};
+   prev.innerHTML=`<b>${t}</b> ✅ R$ ${preco.toFixed(2)} - pode editar o preço acima se quiser`;
  }else{
-   prev.innerHTML=`<b>${t}</b> ⚠️ API sem preço (plano free limitado).<br>Vai no brapi.dev e clica ATIVAR PLANO FREE.<br>Usando temporário R$ 50/cota`;
-   sel={ticker:t, preco:50, dy:0.06, rendDia:0.008219};
+   prev.innerHTML=`<b>${t}</b> ⚠️ Sem preço da API.<br>Digite o preço manualmente no campo amarelo acima (ex: 10.50)`;
+   sel={ticker:t, preco:50, dy:0.06, rendDia:0.0082};
  }
 }
 
 function adicionar(){
  let qtd=parseInt(document.getElementById('qtd').value)||0;
- if(!sel||qtd<=0) return alert('Selecione ativo e qtd');
- carteira.push({ticker:sel.ticker, qtd, rendDia:sel.rendDia*qtd}); localStorage.setItem('carteiraB3',JSON.stringify(carteira)); render();
- document.getElementById('qtd').value=''; document.getElementById('preview').classList.add('hidden'); sel=null; document.getElementById('busca').value='';
+ let precoInput=parseFloat(document.getElementById('precoManual').value);
+ if(!sel||qtd<=0) return alert('Selecione ativo e quantidade');
+ let precoFinal =!isNaN(precoInput) && precoInput>0? precoInput : sel.preco;
+ let dy = 0.06;
+ let rendDiaPorCota = (precoFinal*dy/365);
+ carteira.push({ticker:sel.ticker, qtd, rendDia:rendDiaPorCota*qtd, preco:precoFinal});
+ localStorage.setItem('carteiraB3',JSON.stringify(carteira));
+ render();
+ document.getElementById('qtd').value=''; document.getElementById('precoManual').value=''; document.getElementById('preview').classList.add('hidden'); sel=null; document.getElementById('busca').value='';
 }
 function remover(i){carteira.splice(i,1);localStorage.setItem('carteiraB3',JSON.stringify(carteira));render();}
 function render(){
  let total=carteira.reduce((a,b)=>a+b.rendDia,0);
- document.getElementById('lista').innerHTML=carteira.map((c,i)=>`<div class="bg-black rounded-xl p-3 flex justify-between text-sm"><div><b>${c.ticker}</b> x${c.qtd}<div class="mono text-[10px] text-emerald-400">R$ ${(c.rendDia/86400).toFixed(6)}/s</div></div><button onclick="remover(${i})">x</button></div>`).join('');
+ document.getElementById('lista').innerHTML=carteira.map((c,i)=>`<div class="bg-black rounded-xl p-3 flex justify-between text-sm"><div><b>${c.ticker}</b> x${c.qtd} <span class="opacity-50">R$${c.preco.toFixed(2)}</span><div class="mono text-[10px] text-emerald-400">R$ ${(c.rendDia/86400).toFixed(6)}/s</div></div><button onclick="remover(${i})">x</button></div>`).join('');
  document.getElementById('hoje').innerText='R$ '+total.toFixed(2);
  document.getElementById('mes').innerText='R$ '+(total*30).toFixed(0);
  document.getElementById('ano').innerText='R$ '+(total*365).toFixed(0);
