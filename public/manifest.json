@@ -1,24 +1,30 @@
 {
-  "name": "Clock-Money",
-  "short_name": "Clock-Money",
-  "description": "Seu dinheiro rendendo a cada segundo",
+  "name": "Clock Money",
+  "short_name": "ClockMoney",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#080808",
-  "theme_color": "#080808",
-  "orientation": "portrait",
+  "background_color": "#0f0f0f",
+  "theme_color": "#39ff14",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/icon-192.jpg",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/jpeg"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icon-512.jpg",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/public/icon-192.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/public/icon-512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
     }
   ]
 }
