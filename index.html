@@ -1,27 +1,76 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Clock-Money</title><script src="https://cdn.tailwindcss.com"></script><style>.mono{font-family:monospace}</style></head>
-<body class="bg-black text-white p-4 flex justify-center"><div class="w-full max-w-6xl">
-<h1 class="text-3xl font-bold text-center py-6">⏰ CLOCK-MONEY <span class="text-emerald-400">B3 AO VIVO</span></h1>
-<div class="grid md:grid-cols-3 gap-6"><div class="md:col-span-2 bg-zinc-900 rounded-[24px] p-8 border border-white/10 text-center">
-<div class="text-xs opacity-50">RENDENDO AGORA</div><div id="valor" class="mono text-6xl font-bold text-emerald-400 mt-4">R$ 0,0000</div><div id="info" class="mono text-sm mt-2 opacity-60">Adicione um ativo</div>
-<div class="grid grid-cols-3 gap-3 mt-8"><div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">HOJE</div><div id="hoje" class="mono font-bold">R$ 0,00</div></div><div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">MÊS</div><div id="mes" class="mono font-bold">R$ 0,00</div></div><div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">ANO</div><div id="ano" class="mono font-bold">R$ 0,00</div></div></div></div>
-<div class="bg-zinc-900 rounded-[24px] p-5 border border-white/10">
-<input id="busca" class="w-full bg-black border border-white/10 rounded-xl p-3 outline-none" placeholder="Digite B3SA3, WEGE3..." oninput="buscar(this.value)">
-<div id="sugestoes" class="bg-zinc-800 rounded-xl mt-2 max-h-52 overflow-auto hidden"></div>
-<div class="grid grid-cols-2 gap-3 mt-3">
-<input id="qtd" type="number" class="bg-black border border-white/10 rounded-xl p-3" placeholder="Qtd">
-<input id="precoManual" type="number" step="0.01" class="bg-black border border-emerald-500/30 rounded-xl p-3" placeholder="Preço ex: 48.47">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clock-Money PRO</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Space Grotesk',sans-serif;background:#050507}
+.mono{font-family:'JetBrains Mono',monospace}
+.glass{background:rgba(24,24,27,.7);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08)}
+.glow{box-shadow:0 0 40px rgba(52,211,153,.15)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}.pulse{animation:pulse 2s infinite}
+</style>
+</head>
+<body class="text-white min-h-screen p-3 md:p-6">
+<div class="max-w-7xl mx-auto">
+<!-- HEADER -->
+<div class="flex justify-between items-center py-4">
+<h1 class="text-2xl md:text-4xl font-bold">⏰ CLOCK-MONEY <span class="text-emerald-400">PRO</span></h1>
+<div class="flex gap-2"><span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs mono">● AO VIVO B3</span></div>
 </div>
-<div id="preview" class="text-xs mono bg-black p-3 rounded-xl mt-3 hidden"></div>
-<button onclick="adicionar()" class="w-full bg-emerald-400 text-black font-bold rounded-xl p-3 mt-3">Adicionar</button>
-<div id="lista" class="mt-5 space-y-2"></div>
-<button onclick="localStorage.clear();location.reload()" class="w-full mt-4 text-xs opacity-30">Limpar carteira</button>
-</div></div></div>
+
+<div class="grid lg:grid-cols-[1.8fr_1fr] gap-6 mt-4">
+<!-- ESQUERDA - RELÓGIO + GRAFICO -->
+<div class="space-y-6">
+<div class="glass glow rounded-[32px] p-8 md:p-12 text-center relative overflow-hidden">
+<div class="absolute -top-20 -right-20 w-72 h-72 bg-emerald-500/20 rounded-full blur-[80px]"></div>
+<div class="relative">
+<div class="text-[10px] tracking-[0.3em] opacity-40">RENDENDO DESDE 00:00</div>
+<div id="valor" class="mono text-5xl md:text-7xl font-bold text-emerald-400 mt-4 tracking-tighter">R$ 0,0000</div>
+<div id="info" class="mono text-xs md:text-sm mt-3 opacity-60">Adicione ativos para começar</div>
+<div class="grid grid-cols-3 gap-3 mt-10">
+<div class="bg-black/60 rounded-2xl p-4"><div class="text-[10px] opacity-40">HOJE</div><div id="hoje" class="mono text-lg font-bold mt-1">R$ 0,00</div><div id="dyHoje" class="text-[10px] text-emerald-400">DY médio 0%</div></div>
+<div class="bg-black/60 rounded-2xl p-4"><div class="text-[10px] opacity-40">ESTE MÊS</div><div id="mes" class="mono text-lg font-bold mt-1">R$ 0,00</div><div class="text-[10px] opacity-40">projeção</div></div>
+<div class="bg-black/60 rounded-2xl p-4"><div class="text-[10px] opacity-40">ESTE ANO</div><div id="ano" class="mono text-lg font-bold mt-1">R$ 0,00</div><div class="text-[10px] opacity-40">projeção</div></div>
+</div>
+</div>
+</div>
+<div class="glass rounded-[24px] p-5">
+<div class="flex justify-between items-center mb-3"><h3 class="font-bold text-sm">Gráfico ao vivo - Hoje</h3><span class="text-[10px] mono opacity-50" id="grafInfo">R$ 0 / segundo</span></div>
+<canvas id="graf" height="120"></canvas>
+</div>
+</div>
+
+<!-- DIREITA - CARTEIRA -->
+<div class="glass rounded-[32px] p-6">
+<h3 class="font-bold">Sua Carteira B3</h3>
+<p class="text-xs opacity-50 mt-1">Busca com preço + DY real</p>
+<input id="busca" class="w-full bg-black border border-white/10 rounded-2xl p-4 mt-5 outline-none focus:border-emerald-500/50" placeholder="Buscar B3SA3, WEGE3, PETR4..." oninput="buscar(this.value)">
+<div id="sugestoes" class="bg-zinc-800 rounded-2xl mt-2 max-h-48 overflow-auto hidden"></div>
+<div class="grid grid-cols-2 gap-3 mt-3">
+<input id="qtd" type="number" class="bg-black border border-white/10 rounded-2xl p-3.5" placeholder="Qtd">
+<input id="precoManual" type="number" step="0.01" class="bg-black border border-white/10 rounded-2xl p-3.5" placeholder="Preço">
+</div>
+<div id="preview" class="mono text-xs bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl mt-4 hidden"></div>
+<button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4 hover:bg-emerald-400 transition">+ Adicionar à carteira</button>
+<div id="lista" class="mt-6 space-y-3"></div>
+<div class="mt-6 p-4 bg-black/50 rounded-2xl">
+<div class="flex justify-between text-xs"><span class="opacity-50">Total investido</span><span id="totalInv" class="mono font-bold">R$ 0,00</span></div>
+<div class="flex justify-between text-xs mt-2"><span class="opacity-50">DY médio carteira</span><span id="dyMedio" class="mono font-bold text-emerald-400">0% a.a.</span></div>
+</div>
+<button onclick="localStorage.clear();location.reload()" class="w-full mt-4 text-[11px] opacity-20">Limpar tudo</button>
+</div>
+</div>
+</div>
+
 <script>
 const TOKEN = "qtZQumqzTgLyLYyMd5Ph9n";
-let carteira = JSON.parse(localStorage.getItem('carteiraB3')||'[]');
+let carteira = JSON.parse(localStorage.getItem('carteiraB3v2')||'[]');
 let sel=null; let inicio=new Date(); inicio.setHours(0,0,0,0);
+let chart; let chartData=[];
 
 async function buscar(q){
  let d=document.getElementById('sugestoes');
@@ -35,57 +84,87 @@ async function buscar(q){
  }catch(e){}
 }
 
-async function getPrecoBrapi(t){
+async function getDadosBrapi(t){
  try{
-  let r=await fetch(`https://brapi.dev/api/quote/${t}?token=${TOKEN}`);
-  let j=await r.json();
-  if(j.results && j.results[0]?.regularMarketPrice) return j.results[0].regularMarketPrice;
- }catch(e){} return null;
+  let r=await fetch(`https://brapi.dev/api/quote/${t}?token=${TOKEN}&dividends=true&fundamental=true`);
+  let j=await r.json(); return j.results?.[0]||null;
+ }catch(e){return null}
 }
 async function getPrecoYahoo(t){
  try{
   let r=await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${t}.SA?interval=1d&range=1d`);
-  let j=await r.json();
-  let price=j.chart?.result?.[0]?.meta?.regularMarketPrice;
-  if(price) return price;
- }catch(e){} return null;
+  let j=await r.json(); return j.chart?.result?.[0]?.meta?.regularMarketPrice||null;
+ }catch(e){return null}
 }
 
 async function selecionar(t){
  document.getElementById('busca').value=t;
  document.getElementById('sugestoes').classList.add('hidden');
- let prev=document.getElementById('preview'); prev.classList.remove('hidden'); prev.innerText=`Buscando ${t}...`;
- let preco = await getPrecoBrapi(t);
- if(!preco) preco = await getPrecoYahoo(t);
- document.getElementById('precoManual').value = preco? preco.toFixed(2) : "";
- if(preco){
-   sel={ticker:t, preco, dy:0.06, rendDia:(preco*0.06/365)};
-   prev.innerHTML=`<b>${t}</b> ✅ R$ ${preco.toFixed(2)} via ${preco==await getPrecoBrapi(t)?'Brapi':'Yahoo'}`;
- }else{
-   prev.innerHTML=`<b>${t}</b> ⚠️ Sem preço API. Digite manual ex: 48.47`;
-   sel={ticker:t, preco:48.47, dy:0.06, rendDia:0.008};
+ let prev=document.getElementById('preview'); prev.classList.remove('hidden'); prev.innerHTML=`<span class="pulse">● Buscando ${t} + dividendos...</span>`;
+ let dados = await getDadosBrapi(t);
+ let preco = dados?.regularMarketPrice || await getPrecoYahoo(t);
+ if(!preco) preco = parseFloat(document.getElementById('precoManual').value)||0;
+
+ let dy=0.06, dyTxt="6% (estimado)";
+ if(dados?.dividendsData?.cashDividends?.length){
+   let divs=dados.dividendsData.cashDividends;
+   let ult12m=divs.slice(0,12).reduce((a,b)=>a+(b.rate||0),0);
+   let data12m = new Date(); data12m.setFullYear(data12m.getFullYear()-1);
+   let soma12m = divs.filter(d=>new Date(d.paymentDate)>data12m).reduce((a,b)=>a+(b.rate||0),0);
+   if(soma12m>0 && preco){ dy=soma12m/preco; dyTxt=`${(dy*100).toFixed(2)}% a.a. (12m real)`; }
+   else if(ult12m>0 && preco){ dy=ult12m/preco; dyTxt=`${(dy*100).toFixed(2)}% a.a. (real)`; }
  }
+ document.getElementById('precoManual').value = preco? preco.toFixed(2):"";
+ sel={ticker:t, preco:preco||50, dy, dyTxt, rendDia:((preco||50)*dy/365)};
+ prev.innerHTML=`<div class="flex justify-between"><b>${t}</b><span class="text-emerald-400">R$ ${(preco||50).toFixed(2)}</span></div><div class="mt-1 opacity-70">DY: ${dyTxt}</div><div class="mt-1">R$ ${sel.rendDia.toFixed(4)}/dia por cota • R$ ${(sel.rendDia/86400).toFixed(6)}/s`;
 }
 
 function adicionar(){
  let qtd=parseInt(document.getElementById('qtd').value)||0;
  let precoInput=parseFloat(document.getElementById('precoManual').value);
- if(!sel||qtd<=0) return alert('Selecione ativo e qtd');
+ if(!sel||qtd<=0) return alert('Busque ativo e qtd');
  let precoFinal =!isNaN(precoInput)&&precoInput>0? precoInput:sel.preco;
- let rendDiaPorCota=(precoFinal*0.06/365);
- carteira.push({ticker:sel.ticker, qtd, rendDia:rendDiaPorCota*qtd, preco:precoFinal});
- localStorage.setItem('carteiraB3',JSON.stringify(carteira)); render();
- document.getElementById('qtd').value=''; document.getElementById('precoManual').value=''; document.getElementById('preview').classList.add('hidden'); sel=null; document.getElementById('busca').value='';
+ let rendDia=(precoFinal*sel.dy/365);
+ carteira.push({ticker:sel.ticker, qtd, preco:precoFinal, dy:sel.dy, dyTxt:sel.dyTxt, rendDia:rendDia*qtd});
+ localStorage.setItem('carteiraB3v2',JSON.stringify(carteira));
+ render(); document.getElementById('qtd').value=''; document.getElementById('precoManual').value=''; document.getElementById('preview').classList.add('hidden'); sel=null; document.getElementById('busca').value='';
 }
-function remover(i){carteira.splice(i,1);localStorage.setItem('carteiraB3',JSON.stringify(carteira));render();}
+function remover(i){carteira.splice(i,1);localStorage.setItem('carteiraB3v2',JSON.stringify(carteira));render();}
+
+function initChart(){
+ let ctx=document.getElementById('graf').getContext('2d');
+ chart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{data:[],borderColor:'#34d399',backgroundColor:'rgba(52,211,153,0.15)',fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}},animation:false}});
+}
+
 function render(){
- let total=carteira.reduce((a,b)=>a+b.rendDia,0);
- document.getElementById('lista').innerHTML=carteira.map((c,i)=>`<div class="bg-black rounded-xl p-3 flex justify-between text-sm"><div><b>${c.ticker}</b> x${c.qtd} <span class="opacity-50">R$${c.preco.toFixed(2)}</span><div class="mono text-[10px] text-emerald-400">R$ ${(c.rendDia/86400).toFixed(6)}/s</div></div><button onclick="remover(${i})">x</button></div>`).join('');
- document.getElementById('hoje').innerText='R$ '+total.toFixed(2);
- document.getElementById('mes').innerText='R$ '+(total*30).toFixed(0);
- document.getElementById('ano').innerText='R$ '+(total*365).toFixed(0);
- window.totalDia=total;
+ let totalDia=carteira.reduce((a,b)=>a+b.rendDia,0);
+ let totalInv=carteira.reduce((a,b)=>a+b.preco*b.qtd,0);
+ let dyMedio=totalInv? carteira.reduce((a,b)=>a+b.preco*b.qtd*b.dy,0)/totalInv :0;
+ document.getElementById('lista').innerHTML=carteira.map((c,i)=>`<div class="bg-black/60 rounded-2xl p-4 flex justify-between"><div><div class="flex gap-2 items-center"><b class="text-sm">${c.ticker}</b><span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">${(c.dy*100).toFixed(2)}%</span></div><div class="mono text-[11px] opacity-60 mt-1">x${c.qtd} • R$${c.preco.toFixed(2)} • ${c.dyTxt}</div><div class="mono text-[11px] text-emerald-400 mt-1">R$ ${(c.rendDia/86400).toFixed(6)}/s</div></div><button onclick="remover(${i})" class="opacity-30 hover:opacity-100">✕</button></div>`).join('');
+ document.getElementById('hoje').innerText='R$ '+totalDia.toFixed(2);
+ document.getElementById('mes').innerText='R$ '+(totalDia*30).toFixed(0);
+ document.getElementById('ano').innerText='R$ '+(totalDia*365).toFixed(0);
+ document.getElementById('dyHoje').innerText=`DY médio ${(dyMedio*100).toFixed(2)}%`;
+ document.getElementById('totalInv').innerText='R$ '+totalInv.toLocaleString('pt-BR',{minimumFractionDigits:2});
+ document.getElementById('dyMedio').innerText=(dyMedio*100).toFixed(2)+'% a.a.';
+ document.getElementById('grafInfo').innerText=`R$ ${(totalDia/86400).toFixed(6)}/s`;
+ window.totalDia=totalDia;
 }
-setInterval(()=>{let s=(new Date()-inicio)/1000; let ps=(window.totalDia||0)/86400; document.getElementById('valor').innerText='R$ '+(s*ps).toFixed(4); document.getElementById('info').innerText=ps>0?`R$ ${ps.toFixed(6)}/s | ${carteira.length} ativos`:'Adicione um ativo';},100);
-render();
-</script></body></html>
+
+setInterval(()=>{
+ let seg=(new Date()-inicio)/1000; let ps=(window.totalDia||0)/86400; let acumulado=seg*ps;
+ document.getElementById('valor').innerText='R$ '+acumulado.toFixed(4);
+ document.getElementById('info').innerText=ps>0?`R$ ${ps.toFixed(6)}/s • ${carteira.length} ativos • DY real`:'Adicione ativos para começar';
+ if(chart){
+   chartData.push(acumulado);
+   if(chartData.length>60) chartData.shift();
+   chart.data.labels=chartData.map((_,i)=>i);
+   chart.data.datasets[0].data=chartData;
+   chart.update('none');
+ }
+},250);
+
+initChart(); render();
+</script>
+</body>
+</html>
