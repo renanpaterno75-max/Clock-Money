@@ -45,7 +45,7 @@ async function buscar(q){
   if(q.length<2){ document.getElementById('sugestoes').classList.add('hidden'); return; }
   try{
     // Usa API brapi.dev - busca tickers
-    let res = await fetch(`https://brapi.dev/api/available?search=${q}`);
+    let res = await fetchfetch(fetch(`https://brapi.dev/api/available?search=${q}&token=qtZQumqzTgLyLYyMd5Ph9n`));
     let data = await res.json();
     let lista = data.stocks? data.stocks.slice(0,6) : [];
     if(lista.length==0){ // fallback se API precisa token
@@ -72,7 +72,7 @@ async function selecionar(ticker){
   preview.classList.remove('hidden');
   preview.innerText = `Buscando ${ticker}...`;
   try{
-    let res = await fetch(`https://brapi.dev/api/quote/${ticker}?range=1mo&interval=1d`);
+    let res = await fetchfetch(fetch(`https://brapi.dev/api/available?search=${q}&token=qtZQumqzTgLyLYyMd5Ph9n`);
     let data = await res.json();
     let result = data.results? data.results[0] : null;
     if(result){
