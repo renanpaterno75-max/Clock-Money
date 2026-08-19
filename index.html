@@ -2,147 +2,95 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clock-Money PRO + B3 API</title>
+<title>Clock-Money</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>.mono{font-family:monospace}</style>
 </head>
 <body class="bg-black text-white min-h-screen p-4 flex justify-center">
 <div class="w-full max-w-6xl">
-<h1 class="text-3xl font-bold text-center py-6">⏰ CLOCK-MONEY <span class="text-emerald-400">API B3</span></h1>
+<h1 class="text-3xl font-bold text-center py-6">⏰ CLOCK-MONEY <span class="text-emerald-400">B3 AO VIVO</span></h1>
 <div class="grid md:grid-cols-3 gap-6">
 <div class="md:col-span-2 bg-zinc-900 rounded-[24px] p-8 border border-white/10 text-center">
-<div class="text-sm opacity-50">SEU DINHEIRO AGORA</div>
+<div class="text-sm opacity-50">RENDENDO AGORA</div>
 <div id="valor" class="mono text-6xl font-bold text-emerald-400 mt-4">R$ 0,0000</div>
-<div id="info" class="mono text-sm mt-2 opacity-70">Aguardando ativos...</div>
+<div id="info" class="mono text-sm mt-2 opacity-70">Adicione um ativo</div>
 <div class="grid grid-cols-3 gap-3 mt-8">
-<div class="bg-black rounded-xl p-3"><div class="text-xs opacity-50">HOJE</div><div id="hoje" class="mono font-bold">R$ 0</div></div>
-<div class="bg-black rounded-xl p-3"><div class="text-xs opacity-50">MÊS</div><div id="mes" class="mono font-bold">R$ 0</div></div>
-<div class="bg-black rounded-xl p-3"><div class="text-xs opacity-50">ANO</div><div id="ano" class="mono font-bold">R$ 0</div></div>
+<div class="bg-black rounded-xl p-3"><div class="text-xs opacity-50">HOJE</div><div id="hoje" class="mono font-bold">R$ 0,00</div></div>
+<div class="bg-black rounded-xl p-3"><div class="text-xs opacity-50">MÊS</div><div id="mes" class="mono font-bold">R$ 0,00</div></div>
+<div class="bg-black rounded-xl p-3"><div class="text-xs opacity-50">ANO</div><div id="ano" class="mono font-bold">R$ 0,00</div></div>
 </div>
 </div>
 <div class="bg-zinc-900 rounded-[24px] p-6 border border-white/10">
 <h3 class="font-bold mb-3">Buscar ativo B3</h3>
-<div class="relative">
-<input id="busca" class="w-full bg-black border border-white/10 rounded-xl p-3 outline-none focus:border-emerald-500" placeholder="Digite PETR, VALE, ITUB..." oninput="buscar(this.value)">
-<div id="sugestoes" class="absolute w-full bg-zinc-800 rounded-xl mt-1 z-10 max-h-[200px] overflow-auto border border-white/10 hidden"></div>
-</div>
-<div class="mt-4">
-<input id="qtd" type="number" class="w-full bg-black border border-white/10 rounded-xl p-3 mb-3" placeholder="Quantidade">
-<div id="preview" class="text-xs mono bg-black/50 p-3 rounded-xl hidden"></div>
-<button onclick="adicionar()" class="w-full bg-emerald-400 text-black font-bold rounded-xl p-3 mt-3">Adicionar à carteira</button>
-</div>
+<input id="busca" class="w-full bg-black border border-white/10 rounded-xl p-3 outline-none focus:border-emerald-500" placeholder="Digite B3SA3, WEGE3..." oninput="buscar(this.value)">
+<div id="sugestoes" class="bg-zinc-800 rounded-xl mt-2 max-h-[200px] overflow-auto hidden"></div>
+<input id="qtd" type="number" class="w-full bg-black border border-white/10 rounded-xl p-3 mt-4" placeholder="Quantidade">
+<div id="preview" class="text-xs mono bg-black p-3 rounded-xl mt-3 hidden"></div>
+<button onclick="adicionar()" class="w-full bg-emerald-400 text-black font-bold rounded-xl p-3 mt-3">Adicionar</button>
 <div id="lista" class="mt-6 space-y-2"></div>
 </div>
 </div>
 </div>
 <script>
+const TOKEN = "qtZQumqzTgLyLYyMd5Ph9n";
 let carteira = JSON.parse(localStorage.getItem('carteiraB3')||'[]');
 let selecionado = null;
 let inicio = new Date(); inicio.setHours(0,0,0,0);
-let totalDia = 0;
-
 async function buscar(q){
-  if(q.length<2){ document.getElementById('sugestoes').classList.add('hidden'); return; }
-  try{
-    // Usa API brapi.dev - busca tickers
-    let res = await fetchfetch(fetch(`https://brapi.dev/api/available?search=${q}&token=qtZQumqzTgLyLYyMd5Ph9n`));
-    let data = await res.json();
-    let lista = data.stocks? data.stocks.slice(0,6) : [];
-    if(lista.length==0){ // fallback se API precisa token
-      lista = [q.toUpperCase()].filter(Boolean);
-    }
-    let html='';
-    lista.forEach(t=>{
-      html+=`<div class="p-3 hover:bg-white/10 cursor-pointer flex justify-between" onclick="selecionar('${t}')"><span>${t}</span><span class="opacity-50 text-xs">B3</span></div>`;
-    });
-    let sug = document.getElementById('sugestoes');
-    sug.innerHTML=html; sug.classList.remove('hidden');
-  }catch(e){
-    let sug=document.getElementById('sugestoes');
-    sug.innerHTML=`<div class="p-3 hover:bg-white/10 cursor-pointer" onclick="selecionar('${q.toUpperCase()}')">${q.toUpperCase()} (usar)</div>`;
-    sug.classList.remove('hidden');
+ if(q.length<2){ document.getElementById('sugestoes').classList.add('hidden'); return; }
+ let div=document.getElementById('sugestoes');
+ div.innerHTML=`<div class="p-3 cursor-pointer hover:bg-white/10" onclick="selecionar('${q.toUpperCase()}')">Usar ${q.toUpperCase()}</div>`;
+ div.classList.remove('hidden');
+ try{
+  let r=await fetch(`https://brapi.dev/api/available?search=${q}&token=${TOKEN}`);
+  let d=await r.json();
+  if(d.stocks && d.stocks.length){
+   div.innerHTML=d.stocks.slice(0,8).map(t=>`<div class="p-3 hover:bg-white/10 cursor-pointer" onclick="selecionar('${t}')">${t}</div>`).join('');
   }
+ }catch(e){}
 }
-
-async function selecionar(ticker){
-  document.getElementById('busca').value=ticker;
-  document.getElementById('sugestoes').classList.add('hidden');
-  selecionado = {ticker};
-  let preview = document.getElementById('preview');
-  preview.classList.remove('hidden');
-  preview.innerText = `Buscando ${ticker}...`;
-  try{
-    let res = await fetchfetch(fetch(`https://brapi.dev/api/available?search=${q}&token=qtZQumqzTgLyLYyMd5Ph9n`);
-    let data = await res.json();
-    let result = data.results? data.results[0] : null;
-    if(result){
-      let preco = result.regularMarketPrice || 0;
-      let dy = 0.06; // estimativa 6% se não tiver API de dividendos
-      // Tenta pegar dividendos
-      if(result.dividendsData){
-        let divs = Object.values(result.dividendsData);
-        let ultimoAno = divs.slice(-12).reduce((a,b)=>a+ (b.amount||0),0);
-        if(preco>0) dy = ultimoAno/preco;
-      }
-      selecionado.preco = preco;
-      selecionado.dy = dy;
-      selecionado.rendDia = (preco * dy / 365);
-      preview.innerHTML = `${ticker} - R$ ${preco.toFixed(2)}<br>DY estimado: ${(dy*100).toFixed(2)}%<br>Renda/dia por cota: R$ ${selecionado.rendDia.toFixed(4)}`;
-    }else{
-      selecionado.preco=0; selecionado.dy=0.06; selecionado.rendDia=0.5;
-      preview.innerText = `${ticker} - Usando estimativa 6% a.a. - Configure manualmente se quiser`;
-    }
-  }catch(e){
-    selecionado.preco=0; selecionado.rendDia=1;
-    preview.innerText = `${ticker} - API offline, usando R$1/dia por cota (edite depois)`;
-  }
+async function selecionar(t){
+ document.getElementById('busca').value=t;
+ document.getElementById('sugestoes').classList.add('hidden');
+ let prev=document.getElementById('preview'); prev.classList.remove('hidden'); prev.innerText=`Buscando ${t}...`;
+ try{
+  let r=await fetch(`https://brapi.dev/api/v2/stocks/quote?symbols=${t}&token=${TOKEN}`);
+  let d=await r.json();
+  let stock=d.results?d.results[0]:null;
+  if(stock){
+   let preco=stock.regularMarketPrice||0;
+   let dy=0.06;
+   selecionado={ticker:t, preco, dy, rendDia:(preco*dy/365)};
+   prev.innerHTML=`${t} - R$ ${preco.toFixed(2)}<br>DY 6% a.a.<br>R$ ${selecionado.rendDia.toFixed(4)}/dia por cota`;
+  }else throw "no stock";
+ }catch(e){
+  selecionado={ticker:t, preco:10, dy:0.06, rendDia:0.5};
+  prev.innerText=`${t} - usando R$0,50/dia`;
+ }
 }
-
 function adicionar(){
-  let qtd = parseInt(document.getElementById('qtd').value)||0;
-  if(!selecionado || qtd<=0) return alert('Selecione ativo e quantidade');
-  let rendTotal = selecionado.rendDia * qtd;
-  carteira.push({ticker:selecionado.ticker, qtd, preco:selecionado.preco, dy:selecionado.dy, rendDia:rendTotal});
-  totalDia = carteira.reduce((a,b)=>a+b.rendDia,0);
-  localStorage.setItem('carteiraB3', JSON.stringify(carteira));
-  render();
-  document.getElementById('busca').value=''; document.getElementById('qtd').value=''; document.getElementById('preview').classList.add('hidden'); selecionado=null;
+ let qtd=parseInt(document.getElementById('qtd').value)||0;
+ if(!selecionado||qtd<=0) return alert('Selecione ativo e qtd');
+ carteira.push({ticker:selecionado.ticker, qtd, rendDia:selecionado.rendDia*qtd, preco:selecionado.preco});
+ localStorage.setItem('carteiraB3', JSON.stringify(carteira));
+ render();
+ document.getElementById('busca').value=''; document.getElementById('qtd').value=''; document.getElementById('preview').classList.add('hidden'); selecionado=null;
 }
-
-function remover(i){ carteira.splice(i,1); totalDia=carteira.reduce((a,b)=>a+b.rendDia,0); localStorage.setItem('carteiraB3', JSON.stringify(carteira)); render(); }
-
+function remover(i){ carteira.splice(i,1); localStorage.setItem('carteiraB3', JSON.stringify(carteira)); render(); }
 function render(){
-  totalDia = carteira.reduce((a,b)=>a+b.rendDia,0);
-  let lista=document.getElementById('lista'); lista.innerHTML='';
-  carteira.forEach((c,i)=>{
-    let ps = c.rendDia/86400;
-    lista.innerHTML+=`<div class="bg-black rounded-xl p-3 flex justify-between text-sm"><div><b>${c.ticker}</b> x${c.qtd}<div class="mono text-xs text-emerald-400">R$ ${ps.toFixed(5)}/s</div></div><button onclick="remover(${i})" class="opacity-30">x</button></div>`;
-  });
-  document.getElementById('hoje').innerText='R$ '+totalDia.toFixed(2);
-  document.getElementById('mes').innerText='R$ '+(totalDia*30).toFixed(0);
-  document.getElementById('ano').innerText='R$ '+(totalDia*365).toFixed(0);
+ let total=carteira.reduce((a,b)=>a+b.rendDia,0);
+ document.getElementById('lista').innerHTML=carteira.map((c,i)=>`<div class="bg-black rounded-xl p-3 flex justify-between text-sm"><div><b>${c.ticker}</b> x${c.qtd}<div class="mono text-xs text-emerald-400">R$ ${(c.rendDia/86400).toFixed(5)}/s</div></div><button onclick="remover(${i})">x</button></div>`).join('');
+ document.getElementById('hoje').innerText='R$ '+total.toFixed(2);
+ document.getElementById('mes').innerText='R$ '+(total*30).toFixed(0);
+ document.getElementById('ano').innerText='R$ '+(total*365).toFixed(0);
+ window.totalDia=total;
 }
-
 setInterval(()=>{
-  let seg=(new Date()-inicio)/1000;
-  let ps=totalDia/86400;
-  let acum=seg*ps;
-  document.getElementById('valor').innerText='R$ '+acum.toFixed(4);
-  document.getElementById('info').innerText=`R$ ${ps.toFixed(5)} por segundo | ${carteira.length} ativos`;
-},80);
+ let seg=(new Date()-inicio)/1000; let ps=(window.totalDia||0)/86400;
+ document.getElementById('valor').innerText='R$ '+(seg*ps).toFixed(4);
+ document.getElementById('info').innerText=ps>0?`R$ ${ps.toFixed(5)}/s | ${carteira.length} ativos`:'Adicione um ativo';
+},100);
 render();
-
-// Atualiza preços a cada 60s
-setInterval(async ()=>{
-  for(let c of carteira){
-    try{
-      let res=await fetch(`https://brapi.dev/api/quote/${c.ticker}?range=1d&interval=1d`);
-      let data=await res.json();
-      if(data.results && data.results[0]) c.preco=data.results[0].regularMarketPrice;
-    }catch(e){}
-  }
-  localStorage.setItem('carteiraB3', JSON.stringify(carteira));
-},60000);
 </script>
 </body>
 </html>
