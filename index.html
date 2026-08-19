@@ -2,140 +2,135 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Clock-Money v2.4</title>
-<script src="https://cdn.tailwindcss.com"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>body{background:#050507}.mono{font-family:monospace}.glass{background:rgba(24,24,27,.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08)}.tab-active{background:white;color:black}.tab{border:1px solid rgba(255,255,255,.1)}</style>
+<title>Clock-Money • Lovable</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Inter',sans-serif;background:#0d0d0e;overflow:hidden}
+.mono{font-family:'JetBrains Mono',monospace}
+.neon{color:#7bf1a8;text-shadow:0 0 10px rgba(123,241,168,0.8),0 0 30px rgba(123,241,168,0.4),0 0 60px rgba(123,241,168,0.2)}
+.clock-wall{
+  width:360px;height:360px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #1a1a1a 0%, #080808 60%, #000 100%);
+  border:1px solid rgba(255,255,255,0.06);
+  box-shadow:0 0 0 12px #0a0a0a, 0 0 0 13px rgba(255,255,255,0.04), 0 30px 80px rgba(0,0,0,0.9), inset 0 0 50px rgba(0,0,0,1);
+}
+@media(max-width:400px){.clock-wall{width:300px;height:300px}}
+.glass{backdrop-filter:blur(24px);background:rgba(18,18,18,0.72);border:1px solid rgba(255,255,255,0.08)}
+.lamp-glow{position:absolute;right:-100px;top:40%;width:600px;height:600px;background:radial-gradient(circle, rgba(255,180,80,0.18) 0%, rgba(255,140,40,0.06) 30%, transparent 70%);pointer-events:none;filter:blur(10px)}
+</style>
 </head>
-<body class="text-white p-3 md:p-6">
-<div class="max-w-7xl mx-auto">
-<div class="flex justify-between items-center py-3"><h1 class="text-2xl font-bold">⏰ CLOCK-MONEY <span class="text-emerald-400">v2.4</span></h1><div id="totalGeral" class="mono text-sm bg-emerald-500/20 px-3 py-1 rounded-full"></div></div>
+<body class="min-h-screen relative flex flex-col">
 
-<!-- ABAS -->
-<div class="flex gap-2 overflow-auto pb-2 mt-2" id="abas"></div>
-
-<div class="grid lg:grid-cols-[1.8fr_1fr] gap-6 mt-4">
-<div class="space-y-6">
-<div class="glass rounded-[32px] p-8 md:p-10 text-center">
-<div class="text-[10px] opacity-40 tracking-widest">CARTEIRA: <span id="nomeCarteiraAtiva"></span> • RENDENDO DESDE 00:00</div>
-<div id="valor" class="mono text-5xl md:text-6xl font-bold text-emerald-400 mt-4">R$ 0,0000</div>
-<div id="info" class="mono text-xs mt-3 opacity-60"></div>
-<div class="grid grid-cols-3 gap-3 mt-8">
-<div class="bg-black/60 rounded-2xl p-4"><div id="hoje" class="mono font-bold">R$ 0,00</div><div class="text-[10px] opacity-40">HOJE</div></div>
-<div class="bg-black/60 rounded-2xl p-4"><div id="mes" class="mono font-bold">R$ 0</div><div class="text-[10px] opacity-40">MÊS</div></div>
-<div class="bg-black/60 rounded-2xl p-4"><div id="ano" class="mono font-bold">R$ 0</div><div class="text-[10px] opacity-40">ANO</div></div>
-</div>
-</div>
-<div class="glass rounded-2xl p-5"><canvas id="graf" height="110"></canvas></div>
+<!-- CENÁRIO QUARTO -->
+<div class="absolute inset-0">
+  <div class="absolute inset-0 bg-[#11110f]"></div>
+  <div class="absolute inset-0 bg-gradient-to-b from-[#1a1a18]/50 to-[#0a0a09]"></div>
+  <!-- Parede -->
+  <div class="absolute top-0 left-0 right-0 h-[65%] bg-[#171612]"></div>
+  <!-- Luz abajur -->
+  <div class="lamp-glow"></div>
+  <!-- Cama sugerida embaixo -->
+  <div class="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-[#1f1a14] via-[#221c14]/60 to-transparent opacity-80"></div>
+  <div class="absolute bottom-[12%] left-1/2 -translate-x-1/2 w-[90%] max-w-[700px] h-[180px] bg-[#2a2218]/40 blur-[1px] rounded-t-[80px]"></div>
 </div>
 
-<div class="glass rounded-[32px] p-6">
-<div class="flex gap-2 mb-4">
-<button onclick="setTipo('B3')" id="btnB3" class="flex-1 p-2.5 rounded-xl bg-white text-black font-bold text-sm">B3</button>
-<button onclick="setTipo('FIXA')" id="btnFIXA" class="flex-1 p-2.5 rounded-xl tab text-sm">CDI / POUPANÇA</button>
+<!-- CONTEÚDO -->
+<div class="relative z-10 flex-1 flex flex-col items-center pt-[8vh] pb-6 px-4">
+
+  <!-- ABAS (top) -->
+  <div id="abas" class="flex gap-2 mb-6 overflow-auto max-w-full"></div>
+
+  <!-- RELÓGIO REDONDO NA PAREDE -->
+  <div class="clock-wall flex flex-col items-center justify-center relative">
+    <div class="text-[9px] tracking-[0.4em] opacity-30 mb-2">CLOCKMONEY</div>
+    <div id="valorGrande" class="mono text-[38px] md:text-[44px] font-bold neon tracking-tighter">R$ 0,00</div>
+    <div id="subInfo" class="text-center mt-3 leading-[1.1]">
+      <div id="hojeTxt" class="text-[11px] mono text-white/40">Hoje: R$ 0,00</div>
+      <div id="segTxt" class="text-[11px] mono text-emerald-300/50 mt-1">Por seg: R$ 0,0000</div>
+    </div>
+    <!-- reflexo -->
+    <div class="absolute top-[12%] left-[18%] w-[35%] h-[18%] bg-white/[0.06] rounded-full blur-[12px] rotate-[-20deg] pointer-events-none"></div>
+  </div>
+
+  <!-- CARD ACUMULADO -->
+  <div class="mt-auto w-full max-w-[420px] glass rounded-[20px] p-5">
+    <div class="text-[10px] tracking-[0.2em] opacity-40">ACUMULADO DE HOJE</div>
+    <div id="acumuladoHoje" class="mono text-[28px] font-bold neon mt-1">R$ 0,00</div>
+    <div id="acumuladoSub" class="text-[11px] mono text-white/50 mt-1">O ativo(s) • R$ 0,0000 por segundo</div>
+  </div>
+
+  <!-- BOTÕES -->
+  <div class="mt-4 flex gap-3">
+    <button onclick="toggleModal()" class="glass px-5 py-3 rounded-full text-sm font-semibold flex gap-2 items-center"><span>◧</span> Editar carteira</button>
+    <button onclick="togglePause()" id="btnPause" class="glass px-5 py-3 rounded-full text-sm font-semibold">⏸ Pausar</button>
+    <button onclick="resetHoje()" class="w-11 h-11 glass rounded-full flex items-center justify-center">↺</button>
+  </div>
 </div>
 
-<!-- FORM B3 -->
-<div id="formB3">
-<input id="busca" class="w-full bg-black border border-white/20 rounded-2xl p-4 outline-none" placeholder="MXRF11, WEGE3..." oninput="buscar(this.value)" onfocus="buscar(this.value)">
-<div id="sugestoes" class="bg-zinc-800 rounded-2xl mt-2 hidden border border-white/10 overflow-hidden"></div>
-<div id="ativoInfo" class="hidden mt-3 bg-black/50 p-3 rounded-xl text-sm"><span id="ativoNome" class="font-bold"></span> <span id="ativoPreco" class="text-emerald-400 mono"></span><div id="ativoDY" class="text-[11px] opacity-60"></div></div>
-<div class="grid grid-cols-2 gap-3 mt-4">
-<div><div class="text-[10px] opacity-50">QTD</div><input id="qtd" type="number" class="w-full bg-black border border-white/20 rounded-2xl p-3 font-bold" placeholder="0" oninput="onQtdChange()"></div>
-<div><div class="text-[10px] opacity-50">TOTAL R$</div><input id="total" type="number" class="w-full bg-black border border-emerald-500/40 rounded-2xl p-3 font-bold text-emerald-400" placeholder="0,00" oninput="onTotalChange()"></div>
-</div>
-</div>
+<!-- MODAL CARTEIRA (desliza) -->
+<div id="modal" class="fixed inset-0 z-50 translate-y-full transition-transform duration-500">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-xl" onclick="toggleModal()"></div>
+  <div class="absolute bottom-0 left-0 right-0 bg-[#121212] rounded-t-[32px] max-h-[85vh] overflow-auto border-t border-white/10 p-6">
+    <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
+    <div class="flex justify-between items-center">
+      <h2 class="font-bold text-lg">Sua Carteira</h2>
+      <button onclick="novaAba()" class="text-xs bg-white text-black px-3 py-1.5 rounded-full font-bold">+ Nova aba</button>
+    </div>
+    <div id="abasModal" class="flex gap-2 mt-4 overflow-auto"></div>
 
-<!-- FORM RENDA FIXA -->
-<div id="formFIXA" class="hidden space-y-3">
-<select id="tipoFixa" class="w-full bg-black border border-white/20 rounded-2xl p-4" onchange="trocaFixa()">
-<option value="CDI_100">Nubank / 100% CDI (12,15% a.a.)</option>
-<option value="CDI_120">CDB 120% CDI (14,58% a.a.)</option>
-<option value="CDI_110">CDB 110% CDI (13,36% a.a.)</option>
-<option value="POUP">Poupança (7,5% a.a.)</option>
-<option value="SELIC">Tesouro Selic (11,75% a.a.)</option>
-<option value="CUSTOM">Personalizado (% a.a.)</option>
-</select>
-<input id="nomeFixa" class="w-full bg-black border border-white/20 rounded-2xl p-4" placeholder="Nome: Ex: Reserva Nubank">
-<div class="grid grid-cols-2 gap-3">
-<input id="taxaFixa" type="number" step="0.01" class="w-full bg-black border border-white/20 rounded-2xl p-4 mono" placeholder="Taxa % a.a.">
-<input id="valorFixa" type="number" step="0.01" class="w-full bg-black border border-emerald-500/40 rounded-2xl p-4 mono font-bold text-emerald-400" placeholder="Valor R$">
-</div>
-</div>
+    <div class="flex gap-2 mt-6">
+      <button onclick="setTipo('B3')" id="mBtnB3" class="flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm">B3 • Ações / FIIs</button>
+      <button onclick="setTipo('FIXA')" id="mBtnFIXA" class="flex-1 py-3 rounded-xl bg-zinc-800 text-sm">CDI / Poupança</button>
+    </div>
 
-<div id="preview" class="mono text-xs bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl mt-4 hidden"></div>
-<button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4">+ ADICIONAR NESTA CARTEIRA</button>
-<div id="lista" class="mt-6 space-y-2"></div>
-</div>
-</div>
+    <div id="mFormB3" class="mt-5">
+      <input id="busca" class="w-full bg-black border border-white/10 rounded-2xl p-4 outline-none" placeholder="MXRF11, HGLG11, WEGE3..." oninput="buscar(this.value)" onfocus="buscar(this.value)">
+      <div id="sugestoes" class="bg-zinc-800 rounded-xl mt-2 hidden border border-white/10 overflow-hidden"></div>
+      <div id="ativoInfo" class="hidden mt-3 bg-white/5 p-3 rounded-xl text-sm flex justify-between"><span id="ativoNome" class="font-bold"></span><span id="ativoPreco" class="text-emerald-400 mono"></span></div>
+      <div class="grid grid-cols-2 gap-3 mt-4">
+        <div><div class="text-[10px] opacity-50">QTD</div><input id="qtd" type="number" class="w-full bg-black border border-white/10 rounded-xl p-3 font-bold" placeholder="0" oninput="onQtdChange()"></div>
+        <div><div class="text-[10px] opacity-50">TOTAL R$</div><input id="total" type="number" class="w-full bg-black border border-emerald-500/30 rounded-xl p-3 font-bold text-emerald-400" placeholder="0,00" oninput="onTotalChange()"></div>
+      </div>
+    </div>
+
+    <div id="mFormFIXA" class="hidden mt-5 space-y-3">
+      <select id="tipoFixa" class="w-full bg-black border border-white/10 rounded-xl p-4" onchange="trocaFixa()">
+        <option value="CDI_100">Nubank 100% CDI • 12,15% a.a.</option><option value="CDI_120">CDB 120% CDI • 14,58%</option><option value="CDI_110">CDB 110% CDI • 13,36%</option><option value="POUP">Poupança • 7,5%</option><option value="SELIC">Selic • 11,75%</option><option value="CUSTOM">Personalizado</option>
+      </select>
+      <input id="nomeFixa" class="w-full bg-black border border-white/10 rounded-xl p-4" placeholder="Nome: Reserva Nubank">
+      <div class="grid grid-cols-2 gap-3"><input id="taxaFixa" type="number" class="bg-black border border-white/10 rounded-xl p-4 mono" placeholder="% a.a."><input id="valorFixa" type="number" class="bg-black border border-white/10 rounded-xl p-4 mono" placeholder="Valor R$"></div>
+    </div>
+
+    <div id="preview" class="mono text-xs bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl mt-4 hidden"></div>
+    <button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4">+ Adicionar nesta carteira</button>
+    <div id="lista" class="mt-6 space-y-2 pb-10"></div>
+  </div>
 </div>
 
 <script>
-const TOKEN="qtZQumqzTgLyLYyMd5Ph9n";
-const POPULARES=["MXRF11","HGLG11","KNRI11","XPLG11","BCFF11","PETR4","VALE3","WEGE3","ITUB4","BBAS3","TAEE11"];
-const TAXAS={CDI_100:12.15,CDI_120:14.58,CDI_110:13.36,POUP:7.5,SELIC:11.75};
-let carteiras=JSON.parse(localStorage.getItem('carteirasV24')||'null')||[{id:1,nome:'FIIs',ativos:[]},{id:2,nome:'Ações',ativos:[]},{id:3,nome:'Reserva CDI',ativos:[]}];
-let ativaId=parseInt(localStorage.getItem('ativaId')||'1');
-let sel=null, tipoAtivo='B3', trava=false, inicio=new Date(); inicio.setHours(0,0,0,0); let chart, chartData=[];
-
+const TOKEN="qtZQumqzTgLyLYyMd5Ph9n";const POPULARES=["MXRF11","HGLG11","KNRI11","XPLG11","BCFF11","PETR4","VALE3","WEGE3","ITUB4"];const TAXAS={CDI_100:12.15,CDI_120:14.58,CDI_110:13.36,POUP:7.5,SELIC:11.75};
+let carteiras=JSON.parse(localStorage.getItem('carteirasV24')||'null')||[{id:1,nome:'FIIs',ativos:[]},{id:2,nome:'Ações',ativos:[]},{id:3,nome:'Reserva',ativos:[]}];
+let ativaId=parseInt(localStorage.getItem('ativaId')||'1');let sel=null,tipoAtivo='B3',trava=false,inicio=new Date();inicio.setHours(0,0,0,0);let pausado=false;
 function save(){localStorage.setItem('carteirasV24',JSON.stringify(carteiras));localStorage.setItem('ativaId',ativaId);}
-
-function renderAbas(){
-  const el=document.getElementById('abas');
-  el.innerHTML=carteiras.map(c=>`<button onclick="trocaAba(${c.id})" class="px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap ${c.id===ativaId?'tab-active':'tab'}">${c.nome} <span class="opacity-60 text-xs">R$${(c.ativos.reduce((a,b)=>a+b.rendDia,0)*30).toFixed(0)}/mês</span></button>`).join('')+`<button onclick="novaAba()" class="px-4 py-2.5 rounded-full tab text-sm">+ Nova</button>`;
-  document.getElementById('nomeCarteiraAtiva').innerText=carteiras.find(c=>c.id===ativaId)?.nome||'';
-  const totalGeral=carteiras.reduce((a,c)=>a+c.ativos.reduce((x,y)=>x+y.rendDia,0),0);
-  document.getElementById('totalGeral').innerText=`TOTAL: R$ ${totalGeral.toFixed(2)}/dia • R$ ${(totalGeral*30).toFixed(0)}/mês`;
-}
-function trocaAba(id){ativaId=id; save(); renderAbas(); renderLista(); document.getElementById('qtd').value='';document.getElementById('total').value='';}
-function novaAba(){const nome=prompt('Nome da nova carteira: Ex: Aposentadoria, Gringa, Cripto'); if(!nome) return; const id=Date.now(); carteiras.push({id,nome,ativos:[]}); ativaId=id; save(); renderAbas(); renderLista();}
-
-function setTipo(t){tipoAtivo=t; document.getElementById('btnB3').className=t==='B3'?'flex-1 p-2.5 rounded-xl bg-white text-black font-bold text-sm':'flex-1 p-2.5 rounded-xl tab text-sm'; document.getElementById('btnFIXA').className=t==='FIXA'?'flex-1 p-2.5 rounded-xl bg-white text-black font-bold text-sm':'flex-1 p-2.5 rounded-xl tab text-sm'; document.getElementById('formB3').classList.toggle('hidden',t!=='B3'); document.getElementById('formFIXA').classList.toggle('hidden',t!=='FIXA'); if(t==='FIXA') trocaFixa();}
-function trocaFixa(){const tipo=document.getElementById('tipoFixa').value; if(TAXAS[tipo]) document.getElementById('taxaFixa').value=TAXAS[tipo]; if(tipo==='CUSTOM') document.getElementById('taxaFixa').focus();}
-
-function buscar(q){const d=document.getElementById('sugestoes');const termo=(q||'').toUpperCase();let lista=POPULARES.filter(t=>t.includes(termo)).slice(0,8);if(termo.length===0) lista=POPULARES.slice(0,6);if(lista.length===0) lista=[termo];d.innerHTML=lista.map(t=>`<div class="p-3 hover:bg-white/10 cursor-pointer" onclick="selecionar('${t}')">${t}</div>`).join('');d.classList.remove('hidden');}
+function renderAbas(){const html=carteiras.map(c=>`<button onclick="trocaAba(${c.id})" class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap ${c.id===ativaId?'bg-white text-black':'glass'}">${c.nome}</button>`).join('');document.getElementById('abas').innerHTML=html;document.getElementById('abasModal').innerHTML=html;}
+function trocaAba(id){ativaId=id;save();renderAbas();renderLista();}function novaAba(){const nome=prompt('Nome da carteira:');if(!nome) return;const id=Date.now();carteiras.push({id,nome,ativos:[]});ativaId=id;save();renderAbas();renderLista();}
+function setTipo(t){tipoAtivo=t;document.getElementById('mBtnB3').className=t==='B3'?'flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm':'flex-1 py-3 rounded-xl bg-zinc-800 text-sm';document.getElementById('mBtnFIXA').className=t==='FIXA'?'flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm':'flex-1 py-3 rounded-xl bg-zinc-800 text-sm';document.getElementById('mFormB3').classList.toggle('hidden',t!=='B3');document.getElementById('mFormFIXA').classList.toggle('hidden',t!=='FIXA');}
+function trocaFixa(){const tipo=document.getElementById('tipoFixa').value;if(TAXAS[tipo])document.getElementById('taxaFixa').value=TAXAS[tipo];}
+function buscar(q){const d=document.getElementById('sugestoes');const termo=(q||'').toUpperCase();let lista=POPULARES.filter(t=>t.includes(termo)).slice(0,6);if(termo.length===0)lista=POPULARES.slice(0,5);if(lista.length===0)lista=[termo];d.innerHTML=lista.map(t=>`<div class="p-3 hover:bg-white/10 cursor-pointer" onclick="selecionar('${t}')">${t}</div>`).join('');d.classList.remove('hidden');}
 async function getDadosBrapi(t){try{const r=await fetch(`https://brapi.dev/api/quote/${t}?token=${TOKEN}&dividends=true`);const j=await r.json();return j.results?.[0]||null;}catch(e){return null;}}
-async function getPrecoProxy(t){try{const url=encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${t}.SA?range=1d`);const r=await fetch(`https://api.allorigins.win/raw?url=${url}`);const j=await r.json();return j.chart?.result?.[0]?.meta?.regularMarketPrice||null;}catch(e){return null;}}
-async function selecionar(t){document.getElementById('busca').value=t;document.getElementById('sugestoes').classList.add('hidden');const prev=document.getElementById('preview');prev.classList.remove('hidden');prev.innerHTML=`Buscando ${t}...`;const dados=await getDadosBrapi(t);let preco=dados?.regularMarketPrice||await getPrecoProxy(t)|| (t.includes('11')?10.25:42.60);let dy=0.06,dyTxt="6% estimado";if(dados?.dividendsData?.cashDividends?.length){const data12m=new Date();data12m.setFullYear(data12m.getFullYear()-1);const soma= dados.dividendsData.cashDividends.filter(d=>new Date(d.paymentDate)>data12m).reduce((a,b)=>a+(b.rate||0),0);if(soma>0){dy=soma/preco;dyTxt=`${(dy*100).toFixed(2)}% a.a.`;}}else if(t.includes('11')){dy=0.12;dyTxt="12% FII";}sel={ticker:t,preco,dy,dyTxt,rendDia:preco*dy/365};document.getElementById('ativoInfo').classList.remove('hidden');document.getElementById('ativoNome').innerText=t;document.getElementById('ativoPreco').innerText=`R$ ${preco.toFixed(2)}`;document.getElementById('ativoDY').innerText=dyTxt;prev.innerHTML=`${t} • R$ ${preco.toFixed(2)} • ${dyTxt}`;}
-
+async function selecionar(t){document.getElementById('busca').value=t;document.getElementById('sugestoes').classList.add('hidden');const prev=document.getElementById('preview');prev.classList.remove('hidden');prev.innerHTML=`Buscando ${t}...`;const dados=await getDadosBrapi(t);let preco=dados?.regularMarketPrice||(t.includes('11')?10.25:42.6);let dy=t.includes('11')?0.12:0.06;let dyTxt=t.includes('11')?'12% FII':'6% estimado';if(dados?.dividendsData?.cashDividends?.length){const data12m=new Date();data12m.setFullYear(data12m.getFullYear()-1);const soma=dados.dividendsData.cashDividends.filter(d=>new Date(d.paymentDate)>data12m).reduce((a,b)=>a+(b.rate||0),0);if(soma>0){dy=soma/preco;dyTxt=`${(dy*100).toFixed(2)}% a.a.`;}}sel={ticker:t,preco,dy,dyTxt,rendDia:preco*dy/365};document.getElementById('ativoInfo').classList.remove('hidden');document.getElementById('ativoNome').innerText=t;document.getElementById('ativoPreco').innerText=`R$ ${preco.toFixed(2)} • ${dyTxt}`;prev.innerHTML=`${t} • R$ ${preco.toFixed(2)} • ${dyTxt}`;}
 function onQtdChange(){if(trava||!sel) return;trava=true;const qtd=parseFloat(document.getElementById('qtd').value)||0;document.getElementById('total').value=qtd>0?(qtd*sel.preco).toFixed(2):'';trava=false;updatePreview();}
 function onTotalChange(){if(trava||!sel) return;trava=true;const total=parseFloat(document.getElementById('total').value)||0;document.getElementById('qtd').value=total>0?Math.floor(total/sel.preco):'';trava=false;updatePreview();}
-function updatePreview(){if(!sel) return;const qtd=parseInt(document.getElementById('qtd').value)||0;const prev=document.getElementById('preview');if(qtd>0){prev.classList.remove('hidden');const td=(sel.preco*sel.dy/365)*qtd;prev.innerHTML=`${qtd} x R$ ${sel.preco.toFixed(2)} = R$ ${(qtd*sel.preco).toFixed(2)}<br>Rende R$ ${td.toFixed(2)}/dia`;}}
-
-function adicionar(){
-  const carteira=carteiras.find(c=>c.id===ativaId);
-  if(tipoAtivo==='B3'){
-    const qtd=parseInt(document.getElementById('qtd').value)||0;
-    if(!sel||qtd<=0) return alert('Selecione ativo e QTD');
-    carteira.ativos.push({id:Date.now(),tipo:'B3',ticker:sel.ticker,qtd,preco:sel.preco,dy:sel.dy,dyTxt:sel.dyTxt,rendDia:(sel.preco*sel.dy/365)*qtd,nome:sel.ticker});
-  } else {
-    const nome=document.getElementById('nomeFixa').value||document.getElementById('tipoFixa').selectedOptions[0].text;
-    const taxa=parseFloat(document.getElementById('taxaFixa').value)||0;
-    const valor=parseFloat(document.getElementById('valorFixa').value)||0;
-    if(valor<=0||taxa<=0) return alert('Digite taxa e valor');
-    const rendDia=valor*(taxa/100)/365;
-    carteira.ativos.push({id:Date.now(),tipo:'FIXA',ticker:nome,nome,preco:valor,qtd:1,dy:taxa/100,dyTxt:`${taxa.toFixed(2)}% a.a.`,rendDia,taxa,valor});
-  }
-  save(); renderLista(); document.getElementById('qtd').value='';document.getElementById('total').value='';document.getElementById('valorFixa').value='';document.getElementById('preview').classList.add('hidden');
-}
-
+function updatePreview(){if(!sel) return;const qtd=parseInt(document.getElementById('qtd').value)||0;const prev=document.getElementById('preview');if(qtd>0){prev.classList.remove('hidden');const td=(sel.preco*sel.dy/365)*qtd;prev.innerHTML=`${qtd} cotas = R$ ${(qtd*sel.preco).toFixed(2)} • R$ ${td.toFixed(2)}/dia`;}}
+function adicionar(){const cart=carteiras.find(c=>c.id===ativaId);if(tipoAtivo==='B3'){const qtd=parseInt(document.getElementById('qtd').value)||0;if(!sel||qtd<=0) return alert('Selecione ativo e QTD');cart.ativos.push({id:Date.now(),tipo:'B3',ticker:sel.ticker,qtd,preco:sel.preco,dy:sel.dy,dyTxt:sel.dyTxt,rendDia:(sel.preco*sel.dy/365)*qtd});}else{const nome=document.getElementById('nomeFixa').value||document.getElementById('tipoFixa').selectedOptions[0].text;const taxa=parseFloat(document.getElementById('taxaFixa').value)||0;const valor=parseFloat(document.getElementById('valorFixa').value)||0;if(valor<=0||taxa<=0) return alert('Taxa e valor');cart.ativos.push({id:Date.now(),tipo:'FIXA',ticker:nome,preco:valor,qtd:1,dy:taxa/100,dyTxt:`${taxa.toFixed(2)}%`,rendDia:valor*(taxa/100)/365,valor});}save();renderLista();document.getElementById('qtd').value='';document.getElementById('total').value='';document.getElementById('valorFixa').value='';}
 function removerAtivo(id){const c=carteiras.find(x=>x.id===ativaId);c.ativos=c.ativos.filter(a=>a.id!==id);save();renderLista();}
-
-function renderLista(){
-  const carteira=carteiras.find(c=>c.id===ativaId);
-  if(!carteira) return;
-  document.getElementById('lista').innerHTML=carteira.ativos.map(a=>`<div class="bg-black/60 rounded-xl p-3 flex justify-between text-sm"><div><b>${a.ticker}</b> ${a.tipo==='FIXA'?`• R$${a.valor.toFixed(2)}`:`x${a.qtd}`} <span class="text-emerald-400">${(a.dy*100).toFixed(2)}%</span><div class="mono text-[10px] text-emerald-400">R$ ${(a.rendDia/86400).toFixed(7)}/s</div></div><button onclick="removerAtivo(${a.id})">x</button></div>`).join('')||`<div class="text-xs opacity-30 text-center mt-8">Carteira vazia. Adicione ativos acima.</div>`;
-  const totalDia=carteira.ativos.reduce((a,b)=>a+b.rendDia,0);
-  document.getElementById('hoje').innerText='R$ '+totalDia.toFixed(2);
-  document.getElementById('mes').innerText='R$ '+(totalDia*30).toFixed(0);
-  document.getElementById('ano').innerText='R$ '+(totalDia*365).toFixed(0);
-  window.totalDia=totalDia;
-  renderAbas();
-}
-
-function initChart(){const ctx=document.getElementById('graf').getContext('2d');chart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{data:[],borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.15)',fill:true,tension:.4,pointRadius:0}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}},animation:false}});}
-setInterval(()=>{const seg=(new Date()-inicio)/1000;const ps=(window.totalDia||0)/86400;document.getElementById('valor').innerText='R$ '+(seg*ps).toFixed(4);document.getElementById('info').innerText=ps>0?`R$ ${ps.toFixed(7)}/s • ${carteiras.find(c=>c.id===ativaId)?.ativos.length||0} ativos nesta aba`:'Adicione ativos';if(chart){chartData.push(seg*ps);if(chartData.length>60) chartData.shift();chart.data.labels=chartData.map((_,i)=>i);chart.data.datasets[0].data=chartData;chart.update('none');}},250);
-
-initChart(); renderAbas(); renderLista();
+function renderLista(){const carteira=carteiras.find(c=>c.id===ativaId);if(!carteira) return;document.getElementById('lista').innerHTML=carteira.ativos.map(a=>`<div class="bg-white/5 rounded-xl p-3 flex justify-between text-sm"><div><b>${a.ticker}</b> ${a.qtd?`x${a.qtd}`:''} <span class="text-emerald-400">${(a.dy*100).toFixed(2)}%</span><div class="mono text-[10px] text-white/40">R$ ${(a.rendDia/86400).toFixed(7)}/s</div></div><button onclick="removerAtivo(${a.id})">x</button></div>`).join('')||`<div class="text-xs opacity-30 text-center mt-6">Carteira vazia</div>`;const totalDia=carteira.ativos.reduce((a,b)=>a+b.rendDia,0);window.totalDia=totalDia;renderAbas();}
+function toggleModal(){document.getElementById('modal').classList.toggle('translate-y-full');}
+function togglePause(){pausado=!pausado;document.getElementById('btnPause').innerText=pausado?'▶ Continuar':'⏸ Pausar';}
+function resetHoje(){inicio=new Date();inicio.setHours(0,0,0,0);}
+setInterval(()=>{if(pausado) return;const seg=(new Date()-inicio)/1000;const ps=(window.totalDia||0)/86400;const acumulado=seg*ps;document.getElementById('valorGrande').innerText='R$ '+acumulado.toFixed(2);document.getElementById('acumuladoHoje').innerText='R$ '+acumulado.toFixed(2);document.getElementById('hojeTxt').innerText=`Hoje: R$ ${acumulado.toFixed(2)}`;document.getElementById('segTxt').innerText=`Por seg: R$ ${ps.toFixed(4)}`;document.getElementById('acumuladoSub').innerText=`O ativo(s) • R$ ${ps.toFixed(4)} por segundo • ${(carteiras.find(c=>c.id===ativaId)?.ativos.length||0)} ativos em ${carteiras.find(c=>c.id===ativaId)?.nome}`;},200);
+renderAbas();renderLista();
 </script>
 </body>
 </html>
