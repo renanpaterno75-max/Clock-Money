@@ -9,13 +9,10 @@
 <div class="bg-zinc-900 rounded-[24px] p-5 border border-white/10">
 <input id="busca" class="w-full bg-black border border-white/10 rounded-xl p-3 outline-none" placeholder="Digite B3SA3, WEGE3..." oninput="buscar(this.value)">
 <div id="sugestoes" class="bg-zinc-800 rounded-xl mt-2 max-h-52 overflow-auto hidden"></div>
-
 <div class="grid grid-cols-2 gap-3 mt-3">
-<input id="qtd" type="number" class="bg-black border border-white/10 rounded-xl p-3" placeholder="Qtd ex: 100">
-<input id="precoManual" type="number" step="0.01" class="bg-black border border-amber-500/30 rounded-xl p-3" placeholder="Preço opcional ex: 54.30">
+<input id="qtd" type="number" class="bg-black border border-white/10 rounded-xl p-3" placeholder="Qtd">
+<input id="precoManual" type="number" step="0.01" class="bg-black border border-emerald-500/30 rounded-xl p-3" placeholder="Preço ex: 48.47">
 </div>
-<p class="text-[10px] opacity-40 mt-2">💡 Se o preço não puxar, digite manualmente. Se puxar, pode editar.</p>
-
 <div id="preview" class="text-xs mono bg-black p-3 rounded-xl mt-3 hidden"></div>
 <button onclick="adicionar()" class="w-full bg-emerald-400 text-black font-bold rounded-xl p-3 mt-3">Adicionar</button>
 <div id="lista" class="mt-5 space-y-2"></div>
@@ -38,36 +35,46 @@ async function buscar(q){
  }catch(e){}
 }
 
+async function getPrecoBrapi(t){
+ try{
+  let r=await fetch(`https://brapi.dev/api/quote/${t}?token=${TOKEN}`);
+  let j=await r.json();
+  if(j.results && j.results[0]?.regularMarketPrice) return j.results[0].regularMarketPrice;
+ }catch(e){} return null;
+}
+async function getPrecoYahoo(t){
+ try{
+  let r=await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${t}.SA?interval=1d&range=1d`);
+  let j=await r.json();
+  let price=j.chart?.result?.[0]?.meta?.regularMarketPrice;
+  if(price) return price;
+ }catch(e){} return null;
+}
+
 async function selecionar(t){
  document.getElementById('busca').value=t;
  document.getElementById('sugestoes').classList.add('hidden');
  let prev=document.getElementById('preview'); prev.classList.remove('hidden'); prev.innerText=`Buscando ${t}...`;
- let preco=null;
- try{
-  let r=await fetch(`https://brapi.dev/api/quote/${t}?token=${TOKEN}&dividends=true`);
-  let j=await r.json();
-  if(j.results && j.results[0] && j.results[0].regularMarketPrice) preco=j.results[0].regularMarketPrice;
- }catch(e){}
+ let preco = await getPrecoBrapi(t);
+ if(!preco) preco = await getPrecoYahoo(t);
  document.getElementById('precoManual').value = preco? preco.toFixed(2) : "";
  if(preco){
    sel={ticker:t, preco, dy:0.06, rendDia:(preco*0.06/365)};
-   prev.innerHTML=`<b>${t}</b> ✅ R$ ${preco.toFixed(2)} - pode editar o preço acima se quiser`;
+   prev.innerHTML=`<b>${t}</b> ✅ R$ ${preco.toFixed(2)} via ${preco==await getPrecoBrapi(t)?'Brapi':'Yahoo'}`;
  }else{
-   prev.innerHTML=`<b>${t}</b> ⚠️ Sem preço da API.<br>Digite o preço manualmente no campo amarelo acima (ex: 10.50)`;
-   sel={ticker:t, preco:50, dy:0.06, rendDia:0.0082};
+   prev.innerHTML=`<b>${t}</b> ⚠️ Sem preço API. Digite manual ex: 48.47`;
+   sel={ticker:t, preco:48.47, dy:0.06, rendDia:0.008};
  }
 }
 
 function adicionar(){
  let qtd=parseInt(document.getElementById('qtd').value)||0;
  let precoInput=parseFloat(document.getElementById('precoManual').value);
- if(!sel||qtd<=0) return alert('Selecione ativo e quantidade');
- let precoFinal =!isNaN(precoInput) && precoInput>0? precoInput : sel.preco;
- let dy = 0.06;
- let rendDiaPorCota = (precoFinal*dy/365);
+ if(!sel||qtd<=0) return alert('Selecione ativo e qtd');
+ let precoFinal =!isNaN(precoInput)&&precoInput>0? precoInput:sel.preco;
+ let rendDiaPorCota=(precoFinal*0.06/365);
  carteira.push({ticker:sel.ticker, qtd, rendDia:rendDiaPorCota*qtd, preco:precoFinal});
- localStorage.setItem('carteiraB3',JSON.stringify(carteira));
- render();
+ localStorage.setItem('carteiraB3',JSON.stringify(carteira)); render();
  document.getElementById('qtd').value=''; document.getElementById('precoManual').value=''; document.getElementById('preview').classList.add('hidden'); sel=null; document.getElementById('busca').value='';
 }
 function remover(i){carteira.splice(i,1);localStorage.setItem('carteiraB3',JSON.stringify(carteira));render();}
