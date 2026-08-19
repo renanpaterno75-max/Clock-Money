@@ -2,82 +2,147 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Clock-Money</title>
+<title>Clock-Money Premium</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&family=Inter:wght@500;700&display=swap" rel="stylesheet">
 <style>
-body{background:#0a0a0a;margin:0;min-height:100dvh;display:flex;flex-direction:column;align-items:center}
+body{margin:0;background:#080808;min-height:100dvh;font-family:'Inter',sans-serif;overflow-x:hidden}
 .mono{font-family:'JetBrains Mono',monospace}
-.neon{color:#8affad;text-shadow:0 0 10px #8affad,0 0 28px rgba(138,255,173,.6)}
-@keyframes p{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.03);filter:brightness(1.25)}}.pulse{animation:p 1.5s ease-in-out infinite}
-.clock{width:360px;height:360px;max-width:84vw;max-height:84vw;border-radius:50%;background:radial-gradient(circle at 35% 30%,#222 0%,#111 40%,#000 100%);border:1px solid rgba(255,255,255,.08);box-shadow:0 0 0 12px #0a0a0a,0 30px 90px rgba(0,0,0,.9),inset 0 1px 1px rgba(255,255,255,.12)}
-.glass{background:#161616;border:1px solid rgba(255,255,255,.09)}
-.item{padding:14px;color:#fff;background:#1e1e1e;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer}
-.item:hover{background:#2a2a2a}
+.neon{color:#9effbf;text-shadow:0 0 12px #9effbf,0 0 32px rgba(158,255,191,.55)}
+@keyframes pulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.03);filter:brightness(1.2)}}.pulse{animation:pulse 1.6s ease-in-out infinite}
+.clock-wrap{position:relative;width:380px;height:380px;max-width:84vw;max-height:84vw}
+.progress-ring{position:absolute;inset:0;transform:rotate(-90deg)}
+.progress-ring circle{fill:none;stroke-width:3;stroke-linecap:round}
+.bg-ring{stroke:rgba(255,255,255,.06)}
+.fg-ring{stroke:#8affad;filter:drop-shadow(0 0 8px #8affad);transition:stroke-dashoffset.5s ease}
+.clock{
+  position:absolute;inset:14px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,#232323 0%,#121212 40%,#080808 70%,#000 100%);
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.12),inset 0 -30px 60px rgba(0,0,0,.9),0 20px 80px rgba(0,0,0,.9);
+}
+.glass{background:rgba(22,22,22,.88);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08)}
+.stat{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.07)}
+.lamp{position:fixed;left:50%;top:55%;transform:translate(-50%,-50%);width:900px;height:700px;background:radial-gradient(ellipse at center,rgba(255,165,60,.10) 0%,rgba(255,130,30,.04) 35%,transparent 70%);pointer-events:none;filter:blur(20px)}
+.noise{position:fixed;inset:0;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")}
 </style>
 </head>
-<body>
-<div id="abas" class="flex gap-2 mt-6"></div>
-<div class="flex-1 flex items-center justify-center w-full">
-<div class="clock flex flex-col items-center justify-center">
-<div class="text-[9px] tracking-[0.5em] text-white/25">CLOCKMONEY</div>
-<div id="valorGrande" class="mono text-[44px] font-extrabold neon pulse mt-2">R$ 0,00</div>
-<div id="segTxt" class="mono text-[11px] text-white/50 mt-3">R$ 0,0000 /s</div>
-</div>
-</div>
-<div class="w-full max-w-[440px] p-5">
-<div class="glass rounded-[20px] p-5"><div class="text-[10px] tracking-widest text-white/30">ACUMULADO DE HOJE</div><div id="acumuladoHoje" class="mono text-[28px] font-extrabold neon mt-1">R$ 0,00</div><div id="sub" class="mono text-[11px] text-white/40 mt-1"></div></div>
-<div class="flex gap-2 mt-4 justify-center">
-<button onclick="toggleModal()" class="glass px-6 py-3.5 rounded-full text-white text-[13px] font-bold">◧ Editar carteira</button>
-<button onclick="togglePause()" id="btnPause" class="glass px-6 py-3.5 rounded-full text-white text-[13px]">⏸</button>
-<button onclick="resetHoje()" class="glass w-11 h-11 rounded-full text-white">↺</button>
-</div>
+<body class="flex flex-col items-center relative">
+
+<div class="lamp"></div><div class="noise"></div>
+
+<!-- TOPO -->
+<div class="z-10 w-full max-w-[980px] px-5 pt-6 flex justify-between items-center">
+<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-white text-black font-bold flex items-center justify-center text-xs">C$</div><div><div class="text-white font-bold text-sm tracking-wide">CLOCK-MONEY</div><div class="text-white/40 text-[10px] tracking-[0.2em]">PREMIUM EDITION</div></div></div>
+<div id="totalGeral" class="glass px-4 py-2 rounded-full text-xs mono text-emerald-300">TOTAL R$ 0/mês</div>
 </div>
 
+<!-- ABAS -->
+<div id="abas" class="z-10 flex gap-2 mt-6 overflow-auto max-w-full px-5"></div>
+
+<!-- CENTRO -->
+<div class="z-10 flex-1 flex flex-col lg:flex-row items-center justify-center gap-10 w-full max-w-[980px] px-5 py-8">
+
+  <!-- RELÓGIO COM ANEL -->
+  <div class="clock-wrap">
+    <svg class="progress-ring" viewBox="0 0 100 100"><circle class="bg-ring" cx="50" cy="50" r="47"/><circle id="fgRing" class="fg-ring" cx="50" cy="50" r="47" stroke-dasharray="295" stroke-dashoffset="295"/></svg>
+    <div class="clock flex flex-col items-center justify-center text-center">
+      <div class="text-[9px] tracking-[0.5em] text-white/20 font-bold">HOJE</div>
+      <div id="valorGrande" class="mono text-[46px] font-extrabold neon pulse mt-1 tracking-tighter">R$ 0,00</div>
+      <div class="mt-2 flex items-center gap-2 text-[10px] mono text-white/40"><span id="horaAgora">00:00:00</span><span class="w-1 h-1 bg-emerald-400 rounded-full animate-pulse"></span><span id="segTxt">R$ 0,0000/s</span></div>
+      <div id="diaProgress" class="mt-3 text-[10px] mono text-white/25">0% do dia</div>
+    </div>
+  </div>
+
+  <!-- LADO DIREITO - STATS -->
+  <div class="w-full max-w-[380px] space-y-3">
+    <div class="glass rounded-[20px] p-5">
+      <div class="text-[10px] tracking-[0.22em] text-white/35 font-bold">ACUMULADO DE HOJE</div>
+      <div id="acumuladoHoje" class="mono text-[30px] font-extrabold neon mt-1">R$ 0,00</div>
+      <div id="sub" class="mono text-[11px] text-white/45 mt-1"></div>
+      <div class="grid grid-cols-3 gap-2 mt-5">
+        <div class="stat rounded-xl p-3"><div class="text-[9px] text-white/30 tracking-widest">HOJE</div><div id="cardHoje" class="mono text-sm font-bold text-white mt-1">R$ 0</div></div>
+        <div class="stat rounded-xl p-3"><div class="text-[9px] text-white/30 tracking-widest">MÊS</div><div id="cardMes" class="mono text-sm font-bold text-white mt-1">R$ 0</div></div>
+        <div class="stat rounded-xl p-3"><div class="text-[9px] text-white/30 tracking-widest">ANO</div><div id="cardAno" class="mono text-sm font-bold text-white mt-1">R$ 0</div></div>
+      </div>
+    </div>
+
+    <div class="glass rounded-[18px] p-4 flex items-center gap-3">
+      <div class="text-2xl">☕</div><div><div class="text-xs text-white/60">Hoje já rendeu</div><div id="cafeTxt" class="text-sm font-bold text-white">0 cafés</div></div>
+      <div class="ml-auto text-2xl opacity-60">📈</div>
+    </div>
+
+    <div class="flex gap-2">
+      <button onclick="toggleModal()" class="flex-1 glass py-3.5 rounded-full text-white text-[13px] font-bold hover:bg-white hover:text-black transition">◧ Editar carteira</button>
+      <button onclick="togglePause()" id="btnPause" class="glass w-12 h-12 rounded-full text-white">⏸</button>
+      <button onclick="resetHoje()" class="glass w-12 h-12 rounded-full text-white">↺</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL (igual v3.2 com contraste fixo) -->
 <div id="modal" class="fixed inset-0 z-50 translate-y-full transition-transform duration-500">
-<div class="absolute inset-0 bg-black/80" onclick="toggleModal()"></div>
-<div class="absolute bottom-0 left-0 right-0 bg-[#141414] rounded-t-[28px] max-h-[88dvh] overflow-auto p-6 border-t border-white/10">
+<div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="toggleModal()"></div>
+<div class="absolute bottom-0 left-0 right-0 bg-[#141414] rounded-t-[28px] max-h-[88dvh] overflow-auto border-t border-white/10 p-6">
 <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5"></div>
-<div id="abasModal" class="flex gap-2 overflow-auto"></div>
-<div class="flex gap-2 mt-4"><button onclick="setTipo('B3')" id="b1" class="flex-1 py-3 rounded-xl bg-white text-black font-bold">B3</button><button onclick="setTipo('FIXA')" id="b2" class="flex-1 py-3 rounded-xl bg-zinc-800 text-white">CDI</button></div>
-<div id="fB3" class="mt-4">
-<input id="busca" class="w-full bg-black border border-white/20 rounded-xl p-4 text-white placeholder-white/40" placeholder="MXRF11, HGLG11..." oninput="buscar(this.value)" onfocus="buscar(this.value)">
-<div id="sugestoes" class="mt-2 rounded-xl overflow-hidden hidden border border-white/10"></div>
-<div id="infoAtivo" class="hidden mt-3 text-white text-sm"></div>
-<div class="grid grid-cols-2 gap-3 mt-4"><input id="qtd" type="number" class="bg-black border border-white/20 rounded-xl p-3 text-white font-bold" placeholder="QTD" oninput="onQtdChange()"><input id="total" type="number" class="bg-black border border-white/20 rounded-xl p-3 text-emerald-400 font-bold" placeholder="TOTAL R$" oninput="onTotalChange()"></div>
+<div class="flex justify-between items-center text-white"><h2 class="font-bold">Suas carteiras</h2><button onclick="novaAba()" class="text-xs bg-white text-black px-3 py-1.5 rounded-full font-bold">+ Nova</button></div>
+<div id="abasModal" class="flex gap-2 mt-4 overflow-auto"></div>
+<div class="flex gap-2 mt-5"><button onclick="setTipo('B3')" id="b1" class="flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm">B3 • FIIs e Ações</button><button onclick="setTipo('FIXA')" id="b2" class="flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm">CDI / Poupança</button></div>
+<div id="fB3" class="mt-5">
+<input id="busca" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white placeholder-white/30 outline-none focus:border-emerald-400/50" placeholder="Buscar: MXRF11, WEGE3, HGLG11..." oninput="buscar(this.value)" onfocus="buscar(this.value)">
+<div id="sugestoes" class="mt-2 rounded-xl overflow-hidden hidden border border-white/10 bg-[#1e1e1e]"></div>
+<div id="infoAtivo" class="hidden mt-3 text-white text-sm bg-white/5 p-3 rounded-xl"></div>
+<div class="grid grid-cols-2 gap-3 mt-4"><div><div class="text-[10px] text-white/40 mb-1">QUANTIDADE</div><input id="qtd" type="number" class="w-full bg-black border border-white/15 rounded-xl p-3 text-white font-bold" placeholder="0" oninput="onQtdChange()"></div><div><div class="text-[10px] text-white/40 mb-1">TOTAL INVESTIDO</div><input id="total" type="number" class="w-full bg-black border border-emerald-500/30 rounded-xl p-3 text-emerald-400 font-bold" placeholder="0,00" oninput="onTotalChange()"></div></div>
 </div>
-<div id="fFIXA" class="hidden mt-4 space-y-3">
-<select id="tipoFixa" class="w-full bg-black border border-white/20 rounded-xl p-4 text-white" onchange="trocaFixa()"><option value="12.15">Nubank 100% CDI</option><option value="14.58">CDB 120% CDI</option><option value="7.5">Poupança</option></select>
-<input id="nomeFixa" class="w-full bg-black border border-white/20 rounded-xl p-4 text-white" placeholder="Nome">
-<div class="grid grid-cols-2 gap-3"><input id="taxaFixa" class="bg-black border border-white/20 rounded-xl p-4 text-white" placeholder="% a.a."><input id="valorFixa" class="w-full bg-black border border-white/20 rounded-xl p-4 text-white" placeholder="Valor"></div>
-</div>
-<div id="preview" class="hidden mt-4 p-3 rounded-xl bg-emerald-500/10 text-white mono text-xs"></div>
-<button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4">+ Adicionar</button>
+<div id="fFIXA" class="hidden mt-5 space-y-3"><select id="tipoFixa" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white" onchange="trocaFixa()"><option value="12.15">Nubank 100% CDI • 12,15% a.a.</option><option value="14.58">CDB 120% CDI • 14,58%</option><option value="13.36">CDB 110% CDI</option><option value="7.5">Poupança • 7,5%</option><option value="11.75">Tesouro Selic • 11,75%</option><option value="15">Personalizado</option></select><input id="nomeFixa" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white" placeholder="Nome: Ex: Reserva Nubank"><div class="grid grid-cols-2 gap-3"><input id="taxaFixa" type="number" class="bg-black border border-white/15 rounded-xl p-4 text-white mono" placeholder="% a.a."><input id="valorFixa" type="number" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white mono" placeholder="Valor R$"></div></div>
+<div id="preview" class="hidden mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-white mono text-xs"></div>
+<button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4 hover:bg-emerald-300 transition">+ Adicionar nesta carteira</button>
 <div id="lista" class="mt-6 space-y-2 pb-10"></div>
 </div>
 </div>
 
 <script>
-const POPULARES=["MXRF11","HGLG11","KNRI11","XPLG11","BCFF11","PETR4","VALE3","WEGE3","ITUB4"];
-let carteiras=JSON.parse(localStorage.getItem('carteirasV24')||'null')||[{id:1,nome:'FIIs',ativos:[]},{id:2,nome:'Ações',ativos:[]},{id:3,nome:'Reserva',ativos:[]}];
-let ativaId=parseInt(localStorage.getItem('ativaId')||'1');let sel=null,trava=false,inicio=new Date();inicio.setHours(0,0,0,0);let pausado=false;
+const TOKEN="qtZQumqzTgLyLYyMd5Ph9n";const POPULARES=["MXRF11","HGLG11","KNRI11","XPLG11","BCFF11","PETR4","VALE3","WEGE3","ITUB4"];const TAXAS={"12.15":12.15,"14.58":14.58,"13.36":13.36,"7.5":7.5,"11.75":11.75};
+let carteiras=JSON.parse(localStorage.getItem('carteirasV24')||'null')||[{id:1,nome:'FIIs',ativos:[]},{id:2,nome:'Ações',ativos:[]},{id:3,nome:'Reserva CDI',ativos:[]}];
+let ativaId=parseInt(localStorage.getItem('ativaId')||'1');let sel=null,trava=false,inicio=new Date();inicio.setHours(0,0,0,0);let pausado=false;window.tipoAtivo='B3';
 function save(){localStorage.setItem('carteirasV24',JSON.stringify(carteiras));localStorage.setItem('ativaId',ativaId);}
-function renderAbas(){const h=carteiras.map(c=>`<button onclick="trocaAba(${c.id})" class="px-4 py-2 rounded-full text-xs font-bold ${c.id===ativaId?'bg-white text-black':'glass text-white/60'}">${c.nome}</button>`).join('');document.getElementById('abas').innerHTML=h;document.getElementById('abasModal').innerHTML=h;}
-function trocaAba(id){ativaId=id;save();renderAbas();renderLista();}
-function setTipo(t){document.getElementById('fB3').classList.toggle('hidden',t!=='B3');document.getElementById('fFIXA').classList.toggle('hidden',t!=='FIXA');document.getElementById('b1').className=t==='B3'?'flex-1 py-3 rounded-xl bg-white text-black font-bold':'flex-1 py-3 rounded-xl bg-zinc-800 text-white';document.getElementById('b2').className=t==='FIXA'?'flex-1 py-3 rounded-xl bg-white text-black font-bold':'flex-1 py-3 rounded-xl bg-zinc-800 text-white';window.tipoAtivo=t;}
+function renderAbas(){const h=carteiras.map(c=>{const dia=c.ativos.reduce((a,b)=>a+b.rendDia,0);return `<button onclick="trocaAba(${c.id})" class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap ${c.id===ativaId?'bg-white text-black':'glass text-white/60'}">${c.nome} <span class="opacity-60">R$${dia.toFixed(0)}/m</span></button>`}).join('');document.getElementById('abas').innerHTML=h;document.getElementById('abasModal').innerHTML=h;const totalGeral=carteiras.reduce((a,c)=>a+c.ativos.reduce((x,y)=>x+y.rendDia,0),0);document.getElementById('totalGeral').innerText=`TOTAL R$ ${(totalGeral*30).toFixed(0)}/mês • R$ ${totalGeral.toFixed(2)}/dia`;}
+function trocaAba(id){ativaId=id;save();renderAbas();renderLista();}function novaAba(){const n=prompt('Nome da carteira: Ex: Aposentadoria');if(!n) return;const id=Date.now();carteiras.push({id,nome:n,ativos:[]});ativaId=id;save();renderAbas();renderLista();}
+function setTipo(t){window.tipoAtivo=t;document.getElementById('fB3').classList.toggle('hidden',t!=='B3');document.getElementById('fFIXA').classList.toggle('hidden',t!=='FIXA');document.getElementById('b1').className=t==='B3'?'flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm':'flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm';document.getElementById('b2').className=t==='FIXA'?'flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm':'flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm';}
 function trocaFixa(){document.getElementById('taxaFixa').value=document.getElementById('tipoFixa').value;}
-function buscar(q){const d=document.getElementById('sugestoes');const termo=(q||'').toUpperCase();let lista=POPULARES.filter(t=>t.includes(termo)).slice(0,8);if(termo.length===0)lista=POPULARES.slice(0,6);if(lista.length===0)lista=[termo];d.innerHTML=lista.map(t=>`<div class="item" onclick="selecionar('${t}')">${t}</div>`).join('');d.classList.remove('hidden');}
-async function selecionar(t){document.getElementById('busca').value=t;document.getElementById('sugestoes').classList.add('hidden');const prev=document.getElementById('preview');prev.classList.remove('hidden');prev.innerHTML=`Buscando ${t}...`;let preco=t.includes('11')?10.25:42.6;let dy=t.includes('11')?0.12:0.06;try{const r=await fetch(`https://brapi.dev/api/quote/${t}?token=qtZQumqzTgLyLYyMd5Ph9n&dividends=true`);const j=await r.json();const dados=j.results?.[0];if(dados?.regularMarketPrice)preco=dados.regularMarketPrice;if(dados?.dividendsData?.cashDividends?.length){const data12m=new Date();data12m.setFullYear(data12m.getFullYear()-1);const soma=dados.dividendsData.cashDividends.filter(x=>new Date(x.paymentDate)>data12m).reduce((a,b)=>a+(b.rate||0),0);if(soma>0)dy=soma/preco;}}catch(e){}sel={ticker:t,preco,dy,rendDia:preco*dy/365};document.getElementById('infoAtivo').classList.remove('hidden');document.getElementById('infoAtivo').innerText=`${t} • R$ ${preco.toFixed(2)} • ${(dy*100).toFixed(2)}% a.a.`;prev.innerHTML=`${t} • R$ ${preco.toFixed(2)} • ${(dy*100).toFixed(2)}% a.a. • R$ ${(preco*dy/365).toFixed(4)}/dia`;}
+function buscar(q){const d=document.getElementById('sugestoes');const termo=(q||'').toUpperCase();let lista=POPULARES.filter(t=>t.includes(termo)).slice(0,8);if(termo.length===0)lista=POPULARES.slice(0,6);if(lista.length===0)lista=[termo];d.innerHTML=lista.map(t=>`<div class="px-4 py-3.5 text-white font-semibold text-sm hover:bg-white/10 cursor-pointer border-b border-white/5 last:border-0" onclick="selecionar('${t}')">${t} <span class="text-white/30 text-xs">• clique para buscar</span></div>`).join('');d.classList.remove('hidden');}
+async function getDadosBrapi(t){try{const r=await fetch(`https://brapi.dev/api/quote/${t}?token=${TOKEN}&dividends=true`);const j=await r.json();return j.results?.[0]||null;}catch(e){return null;}}
+async function selecionar(t){document.getElementById('busca').value=t;document.getElementById('sugestoes').classList.add('hidden');const prev=document.getElementById('preview');prev.classList.remove('hidden');prev.innerHTML=`Buscando ${t}...`;const dados=await getDadosBrapi(t);let preco=dados?.regularMarketPrice||(t.includes('11')?10.25:42.6);let dy=t.includes('11')?0.12:0.06;if(dados?.dividendsData?.cashDividends?.length){const data12m=new Date();data12m.setFullYear(data12m.getFullYear()-1);const soma=dados.dividendsData.cashDividends.filter(x=>new Date(x.paymentDate)>data12m).reduce((a,b)=>a+(b.rate||0),0);if(soma>0)dy=soma/preco;}sel={ticker:t,preco,dy,rendDia:preco*dy/365};document.getElementById('infoAtivo').classList.remove('hidden');document.getElementById('infoAtivo').innerHTML=`<b>${t}</b> • R$ ${preco.toFixed(2)} • <span class="text-emerald-400">${(dy*100).toFixed(2)}% a.a.</span> • R$ ${(preco*dy/365).toFixed(4)}/dia por cota`;prev.innerHTML=`${t} • R$ ${preco.toFixed(2)} • ${(dy*100).toFixed(2)}% a.a.`;}
 function onQtdChange(){if(trava||!sel) return;trava=true;const qtd=parseFloat(document.getElementById('qtd').value)||0;document.getElementById('total').value=qtd>0?(qtd*sel.preco).toFixed(2):'';trava=false;updPrev();}
 function onTotalChange(){if(trava||!sel) return;trava=true;const total=parseFloat(document.getElementById('total').value)||0;document.getElementById('qtd').value=total>0?Math.floor(total/sel.preco):'';trava=false;updPrev();}
-function updPrev(){if(!sel) return;const qtd=parseInt(document.getElementById('qtd').value)||0;const p=document.getElementById('preview');if(qtd>0){p.classList.remove('hidden');p.innerHTML=`${qtd} cotas = R$ ${(qtd*sel.preco).toFixed(2)} • R$ ${((sel.preco*sel.dy/365)*qtd).toFixed(2)}/dia`;}}
-function adicionar(){const cart=carteiras.find(c=>c.id===ativaId);if((window.tipoAtivo||'B3')==='B3'){const qtd=parseInt(document.getElementById('qtd').value)||0;if(!sel||qtd<=0)return alert('Digite QTD');cart.ativos.push({id:Date.now(),ticker:sel.ticker,qtd,preco:sel.preco,dy:sel.dy,rendDia:(sel.preco*sel.dy/365)*qtd});}else{const taxa=parseFloat(document.getElementById('taxaFixa').value)||0;const valor=parseFloat(document.getElementById('valorFixa').value)||0;const nome=document.getElementById('nomeFixa').value||'Reserva';if(!valor||!taxa)return alert('Taxa e valor');cart.ativos.push({id:Date.now(),ticker:nome,preco:valor,qtd:1,dy:taxa/100,rendDia:valor*(taxa/100)/365});}save();renderLista();document.getElementById('qtd').value='';document.getElementById('total').value='';document.getElementById('valorFixa').value='';document.getElementById('preview').classList.add('hidden');}
+function updPrev(){if(!sel) return;const qtd=parseInt(document.getElementById('qtd').value)||0;const p=document.getElementById('preview');if(qtd>0){p.classList.remove('hidden');p.innerHTML=`${qtd} cotas = R$ ${(qtd*sel.preco).toFixed(2)} • Rende R$ ${((sel.preco*sel.dy/365)*qtd).toFixed(2)}/dia • R$ ${(((sel.preco*sel.dy/365)*qtd)/86400).toFixed(6)}/s`;}}
+function adicionar(){const cart=carteiras.find(c=>c.id===ativaId);if((window.tipoAtivo||'B3')==='B3'){const qtd=parseInt(document.getElementById('qtd').value)||0;if(!sel||qtd<=0)return alert('Selecione ativo e digite QTD ou TOTAL');cart.ativos.push({id:Date.now(),ticker:sel.ticker,qtd,preco:sel.preco,dy:sel.dy,rendDia:(sel.preco*sel.dy/365)*qtd});}else{const taxa=parseFloat(document.getElementById('taxaFixa').value)||0;const valor=parseFloat(document.getElementById('valorFixa').value)||0;const nome=document.getElementById('nomeFixa').value||document.getElementById('tipoFixa').selectedOptions[0].text;if(!valor||!taxa)return alert('Taxa e valor');cart.ativos.push({id:Date.now(),ticker:nome,preco:valor,qtd:1,dy:taxa/100,rendDia:valor*(taxa/100)/365});}save();renderLista();document.getElementById('qtd').value='';document.getElementById('total').value='';document.getElementById('valorFixa').value='';document.getElementById('preview').classList.add('hidden');}
 function removerAtivo(id){const c=carteiras.find(x=>x.id===ativaId);c.ativos=c.ativos.filter(a=>a.id!==id);save();renderLista();}
-function renderLista(){const c=carteiras.find(x=>x.id===ativaId);const totalDia=c?c.ativos.reduce((a,b)=>a+b.rendDia,0):0;window.totalDia=totalDia;document.getElementById('lista').innerHTML=c?c.ativos.map(a=>`<div class="bg-white/5 rounded-xl p-3 flex justify-between text-sm text-white"><div><b>${a.ticker}</b> x${a.qtd} <span class="text-emerald-400">${(a.dy*100).toFixed(2)}%</span><div class="mono text-[10px] opacity-50">R$ ${(a.rendDia/86400).toFixed(7)}/s</div></div><button onclick="removerAtivo(${a.id})">x</button></div>`).join(''):'';renderAbas();document.getElementById('sub').innerText=`${c?.ativos.length||0} ativos • R$ ${(totalDia/86400).toFixed(7)}/s • ${c?.nome||''}`;}
+function renderLista(){const c=carteiras.find(x=>x.id===ativaId);const totalDia=c?c.ativos.reduce((a,b)=>a+b.rendDia,0):0;window.totalDia=totalDia;document.getElementById('lista').innerHTML=c?c.ativos.map(a=>`<div class="bg-white/[0.06] rounded-xl p-3 flex justify-between text-sm text-white"><div><b>${a.ticker}</b> ${a.qtd>1?`x${a.qtd}`:''} <span class="text-emerald-400">${(a.dy*100).toFixed(2)}%</span><div class="mono text-[10px] text-white/40">R$ ${(a.rendDia/86400).toFixed(7)}/s</div></div><button onclick="removerAtivo(${a.id})" class="text-white/40 hover:text-white">✕</button></div>`).join(''):'<div class="text-xs text-white/30 text-center py-6">Carteira vazia. Busque MXRF11 acima.</div>';renderAbas();}
 function toggleModal(){document.getElementById('modal').classList.toggle('translate-y-full');}
 function togglePause(){pausado=!pausado;document.getElementById('btnPause').innerText=pausado?'▶':'⏸';}
 function resetHoje(){inicio=new Date();inicio.setHours(0,0,0,0);}
-setInterval(()=>{if(pausado) return;const seg=(new Date()-inicio)/1000;const ps=(window.totalDia||0)/86400;const acum=seg*ps;const fmt='R$ '+acum.toFixed(2).replace('.',',');document.getElementById('valorGrande').innerText=fmt;document.getElementById('acumuladoHoje').innerText=fmt;document.getElementById('segTxt').innerText=`R$ ${ps.toFixed(4).replace('.',',')} /s`;},120);
+setInterval(()=>{
+  if(pausado) return;
+  const agora=new Date();
+  const seg=(agora-inicio)/1000;
+  const ps=(window.totalDia||0)/86400;
+  const acum=seg*ps;
+  const fmt='R$ '+acum.toFixed(2).replace('.',',');
+  document.getElementById('valorGrande').innerText=fmt;
+  document.getElementById('acumuladoHoje').innerText=fmt;
+  document.getElementById('cardHoje').innerText='R$ '+acum.toFixed(2);
+  document.getElementById('cardMes').innerText='R$ '+((window.totalDia||0)*30).toFixed(0);
+  document.getElementById('cardAno').innerText='R$ '+((window.totalDia||0)*365).toFixed(0);
+  document.getElementById('segTxt').innerText=`R$ ${ps.toFixed(4).replace('.',',')}/s`;
+  document.getElementById('sub').innerText=`${carteiras.find(c=>c.id===ativaId)?.ativos.length||0} ativo(s) • R$ ${ps.toFixed(4).replace('.',',')} por segundo • ${carteiras.find(c=>c.id===ativaId)?.nome}`;
+  document.getElementById('horaAgora').innerText=agora.toLocaleTimeString('pt-BR');
+  document.getElementById('cafeTxt').innerText=`${Math.floor(acum/7)} cafés • ${Math.floor(acum/25)} lanches`;
+  // anel progresso
+  const pctDia=(agora.getHours()*3600+agora.getMinutes()*60+agora.getSeconds())/86400;
+  document.getElementById('fgRing').style.strokeDashoffset=295*(1-pctDia);
+  document.getElementById('diaProgress').innerText=`${(pctDia*100).toFixed(1)}% do dia • ${agora.toLocaleDateString()}`;
+},120);
 renderAbas();renderLista();
 </script>
 </body>
