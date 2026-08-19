@@ -3,22 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Clock-Money</title>
-
-<!-- PWA INSTALÁVEL -->
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#080808">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Clock-Money">
-<link rel="apple-touch-icon" href="/icon-192.png">
-<link rel="icon" type="image/png" href="/icon-192.png">
-
+<title>Clock-Money v6.3 Font Control</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&family=Inter:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{--neon:#9effbf;--neon-glow:rgba(158,255,191,.55)}
-body{margin:0;min-height:100dvh;font-family:'Inter',sans-serif;display:flex;flex-direction:column;align-items:center;background:#080808;overflow:hidden}
+body{margin:0;min-height:100dvh;min-height:-webkit-fill-available;font-family:'Inter',sans-serif;display:flex;flex-direction:column;align-items:center;background:#080808;overflow:hidden}
 .mono{font-family:'JetBrains Mono',monospace}
 .neon{color:var(--neon);text-shadow:0 0 12px var(--neon),0 0 28px var(--neon-glow)}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}.pulse{animation:pulse 1.6s ease-in-out infinite}
@@ -27,16 +17,14 @@ body{margin:0;min-height:100dvh;font-family:'Inter',sans-serif;display:flex;flex
 .clock{position:relative;width:88%;height:88%;border-radius:50%;background:radial-gradient(circle at 32% 28%,#232323 0%,#121212 40%,#080808 70%,#000 100%);border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 1px 1px rgba(255,255,255,.15),0 20px 80px rgba(0,0,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2}
 .glass{background:rgba(18,18,18,.92);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.10)}
 .footer{width:100%;max-width:400px;padding:0 20px calc(24px + env(safe-area-inset-bottom) + 64px) 20px;z-index:2}
+.label-hoje{letter-spacing:0.5em;font-weight:700;opacity:0.4;color:white}
 </style>
 </head>
 <body>
 
 <div class="z-10 w-full max-w-[980px] px-5 pt-[max(14px,env(safe-area-inset-top))] flex justify-between items-center">
-<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-white text-black font-bold flex items-center justify-center text-xs">C$</div><div><div class="text-white font-bold text-sm">CLOCK-MONEY</div><div class="text-white/40 text-[10px] tracking-widest">v6.4 APP</div></div></div>
-<div class="flex gap-2">
-<button id="btnInstalar" onclick="instalarApp()" class="hidden bg-white text-black px-4 py-2 rounded-full text-xs font-bold animate-pulse">📲 Instalar</button>
-<button onclick="toggleCustom()" class="glass px-4 py-2 rounded-full text-xs text-white font-bold">🎨 Fontes</button>
-</div>
+<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-white text-black font-bold flex items-center justify-center text-xs">C$</div><div><div class="text-white font-bold text-sm">CLOCK-MONEY</div><div class="text-white/40 text-[10px] tracking-widest">v6.3 FONT CONTROL</div></div></div>
+<button onclick="toggleCustom()" class="glass px-4 py-2 rounded-full text-xs text-white font-bold">🎨 Tamanho fontes</button>
 </div>
 
 <div id="abas" class="z-10 flex gap-2 mt-4 overflow-auto max-w-full px-5"></div>
@@ -45,7 +33,7 @@ body{margin:0;min-height:100dvh;font-family:'Inter',sans-serif;display:flex;flex
   <div class="clock-wrap">
     <div id="ring" class="ring"></div>
     <div class="clock text-center">
-      <div id="txtHoje" class="tracking-[0.5em] font-bold opacity-40 text-white" style="font-size:9px">HOJE</div>
+      <div id="txtHoje" class="label-hoje" style="font-size:9px">HOJE</div>
       <div id="valorGrande" class="mono font-extrabold neon pulse mt-2" style="font-size:46px">R$ 0,00</div>
       <div class="mt-3 flex items-center gap-2 mono text-white/60">
         <span id="horaAgora" style="font-size:10px">00:00:00</span>
@@ -61,42 +49,92 @@ body{margin:0;min-height:100dvh;font-family:'Inter',sans-serif;display:flex;flex
   <div class="flex gap-2 mt-3"><button onclick="toggleModal()" class="flex-1 glass py-4 rounded-full text-white text-[14px] font-bold">◧ Editar carteira</button><button onclick="togglePause()" id="btnPause" class="glass w-12 h-12 rounded-full text-white">⏸</button></div>
 </div>
 
-<!-- PAINEL FONTES -->
-<div id="customModal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="toggleCustom()"></div><div class="absolute top-0 right-0 h-full w-[380px] max-w-[90vw] bg-[#141414] border-l border-white/10 p-6 overflow-auto"><div class="flex justify-between items-center"><h2 class="font-bold text-white">🔤 Tamanho das fontes</h2><button onclick="toggleCustom()" class="text-white/40 text-xl">✕</button></div><div class="mt-8 space-y-8"><div><div class="flex justify-between mb-3"><span class="text-sm text-white font-bold">Valor grande</span><span id="labelMain" class="text-xs mono text-white/50">46px</span></div><input type="range" min="32" max="68" value="46" class="w-full accent-white" oninput="setFont('main',this.value)"></div><div><div class="flex justify-between mb-3"><span class="text-sm text-white font-bold">Texto HOJE</span><span id="labelHoje" class="text-xs mono text-white/50">9px</span></div><input type="range" min="8" max="20" value="9" class="w-full accent-white" oninput="setFont('hoje',this.value)"></div><div><div class="flex justify-between mb-3"><span class="text-sm text-white font-bold">Horário</span><span id="labelHora" class="text-xs mono text-white/50">10px</span></div><input type="range" min="9" max="22" value="10" class="w-full accent-white" oninput="setFont('hora',this.value)"></div><div><div class="flex justify-between mb-3"><span class="text-sm text-white font-bold">Rendimento /s</span><span id="labelSeg" class="text-xs mono text-white/50">10px</span></div><input type="range" min="9" max="22" value="10" class="w-full accent-white" oninput="setFont('seg',this.value)"></div><div class="mt-6"><div class="text-xs text-white/50 mb-3 font-bold tracking-widest">COR NEON</div><div class="flex gap-3"><div class="w-9 h-9 rounded-full bg-[#9effbf] border-2 border-white cursor-pointer" onclick="setNeon('#9effbf')"></div><div class="w-9 h-9 rounded-full bg-[#60a5fa] border-2 border-white/20 cursor-pointer" onclick="setNeon('#60a5fa')"></div><div class="w-9 h-9 rounded-full bg-white border-2 border-white/20 cursor-pointer" onclick="setNeon('#ffffff')"></div><div class="w-9 h-9 rounded-full bg-[#fbbf24] border-2 border-white/20 cursor-pointer" onclick="setNeon('#fbbf24')"></div></div></div></div></div></div>
+<!-- PAINEL CONTROLE DE FONTES -->
+<div id="customModal" class="fixed inset-0 z-[60] hidden">
+<div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="toggleCustom()"></div>
+<div class="absolute top-0 right-0 h-full w-[380px] max-w-[90vw] bg-[#141414] border-l border-white/10 p-6 overflow-auto">
+<div class="flex justify-between items-center"><h2 class="font-bold text-white">🔤 Tamanho das fontes</h2><button onclick="toggleCustom()" class="text-white/40 text-xl">✕</button></div>
+
+<div class="mt-8 space-y-8">
+<div>
+<div class="flex justify-between items-center mb-3"><span class="text-sm text-white font-bold">Valor grande</span><span id="labelMain" class="text-xs mono text-white/50">46px</span></div>
+<input type="range" min="32" max="68" value="46" class="w-full accent-white" oninput="setFont('main',this.value)">
+<div class="flex gap-2 mt-2"><button onclick="setFont('main',38)" class="flex-1 py-2 rounded-lg bg-zinc-800 text-white text-xs">Pequeno</button><button onclick="setFont('main',46)" class="flex-1 py-2 rounded-lg bg-white text-black font-bold text-xs">Médio</button><button onclick="setFont('main',60)" class="flex-1 py-2 rounded-lg bg-zinc-800 text-white text-xs">Gigante</button></div>
+</div>
+
+<div>
+<div class="flex justify-between items-center mb-3"><span class="text-sm text-white font-bold">Texto "HOJE"</span><span id="labelHoje" class="text-xs mono text-white/50">9px</span></div>
+<input type="range" min="8" max="20" value="9" class="w-full accent-white" oninput="setFont('hoje',this.value)">
+<div class="flex gap-2 mt-2"><button onclick="setFont('hoje',9)" class="flex-1 py-2 rounded-lg bg-zinc-800 text-white text-xs">Pequeno</button><button onclick="setFont('hoje',13)" class="flex-1 py-2 rounded-lg bg-white text-black font-bold text-xs">Médio</button><button onclick="setFont('hoje',17)" class="flex-1 py-2 rounded-lg bg-zinc-800 text-white text-xs">Grande</button></div>
+</div>
+
+<div>
+<div class="flex justify-between items-center mb-3"><span class="text-sm text-white font-bold">Horário • ex: 11:03:04</span><span id="labelHora" class="text-xs mono text-white/50">10px</span></div>
+<input type="range" min="9" max="22" value="10" class="w-full accent-white" oninput="setFont('hora',this.value)">
+<div class="flex gap-2 mt-2"><button onclick="setFont('hora',10)" class="flex-1 py-2 rounded-lg bg-zinc-800 text-white text-xs">Pequeno</button><button onclick="setFont('hora',14)" class="flex-1 py-2 rounded-lg bg-white text-black font-bold text-xs">Médio</button><button onclick="setFont('hora',18)" class="flex-1 py-2 rounded-lg bg-zinc-800 text-white text-xs">Grande</button></div>
+</div>
+
+<div>
+<div class="flex justify-between items-center mb-3"><span class="text-sm text-white font-bold">Rendimento • ex: R$ 0,0000/s</span><span id="labelSeg" class="text-xs mono text-white/50">10px</span></div>
+<input type="range" min="9" max="22" value="10" class="w-full accent-white" oninput="setFont('seg',this.value)">
+<div class="flex gap-2 mt-2"><button onclick="setFont('seg',10)" class="flex-1 py-2 rounded-lg bg-zinc-800 text-white text-xs">Pequeno</button><button onclick="setFont('seg',14)" class="flex-1 py-2 rounded-lg bg-white text-black font-bold text-xs">Médio</button><button onclick="setFont('seg',18)" class="flex-1 py-2 rounded-lg bg-zinc-800 text-white text-xs">Grande</button></div>
+</div>
+
+<div class="mt-8 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+<div class="text-xs text-emerald-300 font-bold">💡 Dica pra seu celular:</div>
+<div class="text-xs text-white/60 mt-1">Coloca HOJE em 13px, Horário em 14px e Rendimento em 14px — fica perfeito na sua tela como da Apple Watch.</div>
+</div>
+
+<div class="mt-6"><div class="text-xs text-white/50 mb-3 font-bold tracking-widest">COR</div><div class="flex gap-3"><div class="w-9 h-9 rounded-full bg-[#9effbf] border-2 border-white cursor-pointer" onclick="setNeon('#9effbf')"></div><div class="w-9 h-9 rounded-full bg-[#60a5fa] border-2 border-white/20 cursor-pointer" onclick="setNeon('#60a5fa')"></div><div class="w-9 h-9 rounded-full bg-white border-2 border-white/20 cursor-pointer" onclick="setNeon('#ffffff')"></div><div class="w-9 h-9 rounded-full bg-[#fbbf24] border-2 border-white/20 cursor-pointer" onclick="setNeon('#fbbf24')"></div></div></div>
+
+</div>
+</div>
+</div>
 
 <!-- MODAL CARTEIRA -->
-<div id="modal" class="fixed inset-0 z-50 translate-y-full transition-transform duration-500"><div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="toggleModal()"></div><div class="absolute bottom-0 left-0 right-0 bg-[#141414] rounded-t-[28px] max-h-[88dvh] overflow-auto border-t border-white/10 p-6"><div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5"></div><div id="abasModal" class="flex gap-2 overflow-auto"></div><div class="flex gap-2 mt-4"><button onclick="setTipo('B3')" id="b1" class="flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm">B3 • FIIs e Ações</button><button onclick="setTipo('FIXA')" id="b2" class="flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm">CDI / Poupança</button></div><div id="fB3" class="mt-4"><input id="busca" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white placeholder-white/30 outline-none" placeholder="MXRF11, WEGE3..." oninput="buscar(this.value)" onfocus="buscar(this.value)"><div id="sugestoes" class="mt-2 rounded-xl overflow-hidden hidden border border-white/10 bg-[#1e1e1e]"></div><div id="infoAtivo" class="hidden mt-3 text-white text-sm bg-white/5 p-3 rounded-xl"></div><div class="grid grid-cols-2 gap-3 mt-4"><input id="qtd" type="number" class="w-full bg-black border border-white/15 rounded-xl p-3 text-white font-bold" placeholder="QTD" oninput="onQtdChange()"><input id="total" type="number" class="w-full bg-black border border-white/15 rounded-xl p-3 text-emerald-400 font-bold" placeholder="TOTAL R$" oninput="onTotalChange()"></div></div><div id="fFIXA" class="hidden mt-5 space-y-3"><select id="tipoFixa" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white" onchange="trocaFixa()"><option value="12.15">Nubank 100% CDI • 12,15% a.a.</option><option value="14.58">CDB 120% CDI • 14,58%</option><option value="7.5">Poupança • 7,5%</option><option value="11.75">Tesouro Selic</option></select><input id="nomeFixa" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white" placeholder="Nome: caixinha"><div class="grid grid-cols-2 gap-3"><input id="taxaFixa" type="number" class="bg-black border border-white/15 rounded-xl p-4 text-white mono" placeholder="% a.a."><input id="valorFixa" type="number" class="bg-black border border-white/15 rounded-xl p-4 text-white mono" placeholder="Valor R$"></div></div><div id="preview" class="hidden mt-4 p-3 rounded-xl bg-white/5 text-white mono text-xs"></div><button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4">+ Adicionar</button><div id="lista" class="mt-6 space-y-2 pb-10"></div></div></div>
+<div id="modal" class="fixed inset-0 z-50 translate-y-full transition-transform duration-500"><div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="toggleModal()"></div><div class="absolute bottom-0 left-0 right-0 bg-[#141414] rounded-t-[28px] max-h-[88dvh] overflow-auto border-t border-white/10 p-6 pb-[calc(24px+env(safe-area-inset-bottom))]"><div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5"></div><div id="abasModal" class="flex gap-2 overflow-auto"></div><div class="flex gap-2 mt-4"><button onclick="setTipo('B3')" id="b1" class="flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm">B3 • FIIs e Ações</button><button onclick="setTipo('FIXA')" id="b2" class="flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm">CDI / Poupança</button></div><div id="fB3" class="mt-4"><input id="busca" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white placeholder-white/30 outline-none" placeholder="MXRF11, WEGE3, HGLG11..." oninput="buscar(this.value)" onfocus="buscar(this.value)"><div id="sugestoes" class="mt-2 rounded-xl overflow-hidden hidden border border-white/10 bg-[#1e1e1e]"></div><div id="infoAtivo" class="hidden mt-3 text-white text-sm bg-white/5 p-3 rounded-xl"></div><div class="grid grid-cols-2 gap-3 mt-4"><input id="qtd" type="number" class="w-full bg-black border border-white/15 rounded-xl p-3 text-white font-bold" placeholder="QTD" oninput="onQtdChange()"><input id="total" type="number" class="w-full bg-black border border-white/15 rounded-xl p-3 text-emerald-400 font-bold" placeholder="TOTAL R$" oninput="onTotalChange()"></div></div><div id="fFIXA" class="hidden mt-5 space-y-3"><select id="tipoFixa" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white" onchange="trocaFixa()"><option value="12.15">Nubank 100% CDI • 12,15% a.a.</option><option value="14.58">CDB 120% CDI • 14,58%</option><option value="7.5">Poupança • 7,5%</option><option value="11.75">Tesouro Selic</option></select><input id="nomeFixa" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white" placeholder="Nome: caixinha da nubank"><div class="grid grid-cols-2 gap-3"><input id="taxaFixa" type="number" class="bg-black border border-white/15 rounded-xl p-4 text-white mono" placeholder="% a.a."><input id="valorFixa" type="number" class="bg-black border border-white/15 rounded-xl p-4 text-white mono" placeholder="Valor R$"></div></div><div id="preview" class="hidden mt-4 p-3 rounded-xl bg-white/5 text-white mono text-xs"></div><button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4">+ Adicionar nesta carteira</button><div id="lista" class="mt-6 space-y-2 pb-10"></div></div></div>
 
 <script>
-// PWA
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); }
-let deferredPrompt; const btnInstalar = document.getElementById('btnInstalar');
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; btnInstalar.classList.remove('hidden'); });
-function instalarApp(){ if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{deferredPrompt=null; btnInstalar.classList.add('hidden');}); } }
-
-// APP LOGIC
 const POPULARES=["MXRF11","HGLG11","KNRI11","XPLG11","BCFF11","PETR4","VALE3","WEGE3","ITUB4"];
 let carteiras=JSON.parse(localStorage.getItem('carteirasV24')||'null')||[{id:1,nome:'FIIs',ativos:[]},{id:2,nome:'Ações',ativos:[]},{id:3,nome:'Reserva CDI',ativos:[]}];
 let ativaId=1,sel=null,trava=false,inicio=new Date();inicio.setHours(0,0,0,0);let pausado=false;window.tipoAtivo='B3';
 let fonts=JSON.parse(localStorage.getItem('fontsV63')||'{"main":46,"hoje":9,"hora":10,"seg":10,"neon":"#9effbf"}');
-function applyFonts(){document.getElementById('valorGrande').style.fontSize=fonts.main+'px';document.getElementById('txtHoje').style.fontSize=fonts.hoje+'px';document.getElementById('horaAgora').style.fontSize=fonts.hora+'px';document.getElementById('segTxt').style.fontSize=fonts.seg+'px';document.getElementById('labelMain').innerText=fonts.main+'px';document.getElementById('labelHoje').innerText=fonts.hoje+'px';document.getElementById('labelHora').innerText=fonts.hora+'px';document.getElementById('labelSeg').innerText=fonts.seg+'px';document.documentElement.style.setProperty('--neon',fonts.neon);localStorage.setItem('fontsV63',JSON.stringify(fonts));}
-function setFont(t,v){if(t==='main')fonts.main=parseInt(v);if(t==='hoje')fonts.hoje=parseInt(v);if(t==='hora')fonts.hora=parseInt(v);if(t==='seg')fonts.seg=parseInt(v);applyFonts();}
+function applyFonts(){
+  document.getElementById('valorGrande').style.fontSize=fonts.main+'px';
+  document.getElementById('txtHoje').style.fontSize=fonts.hoje+'px';
+  document.getElementById('horaAgora').style.fontSize=fonts.hora+'px';
+  document.getElementById('segTxt').style.fontSize=fonts.seg+'px';
+  document.getElementById('labelMain').innerText=fonts.main+'px';
+  document.getElementById('labelHoje').innerText=fonts.hoje+'px';
+  document.getElementById('labelHora').innerText=fonts.hora+'px';
+  document.getElementById('labelSeg').innerText=fonts.seg+'px';
+  document.documentElement.style.setProperty('--neon',fonts.neon);
+  localStorage.setItem('fontsV63',JSON.stringify(fonts));
+}
+function setFont(tipo,valor){
+  const v=parseInt(valor);
+  if(tipo==='main') fonts.main=v;
+  if(tipo==='hoje') fonts.hoje=v;
+  if(tipo==='hora') fonts.hora=v;
+  if(tipo==='seg') fonts.seg=v;
+  applyFonts();
+}
 function setNeon(c){fonts.neon=c;applyFonts();}
 function toggleCustom(){document.getElementById('customModal').classList.toggle('hidden');}
 function save(){localStorage.setItem('carteirasV24',JSON.stringify(carteiras));}
 function renderAbas(){const h=carteiras.map(c=>`<button onclick="trocaAba(${c.id})" class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap ${c.id===ativaId?'bg-white text-black':'glass text-white/60'}">${c.nome}</button>`).join('');document.getElementById('abas').innerHTML=h;document.getElementById('abasModal').innerHTML=h;}
 function trocaAba(id){ativaId=id;renderAbas();renderLista();}
-function setTipo(t){window.tipoAtivo=t;document.getElementById('fB3').classList.toggle('hidden',t!=='B3');document.getElementById('fFIXA').classList.toggle('hidden',t!=='FIXA');}
+function setTipo(t){window.tipoAtivo=t;document.getElementById('fB3').classList.toggle('hidden',t!=='B3');document.getElementById('fFIXA').classList.toggle('hidden',t!=='FIXA');document.getElementById('b1').className=t==='B3'?'flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm':'flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm';document.getElementById('b2').className=t==='FIXA'?'flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm':'flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm';}
 function trocaFixa(){document.getElementById('taxaFixa').value=document.getElementById('tipoFixa').value;}
 function buscar(q){const d=document.getElementById('sugestoes');const termo=(q||'').toUpperCase();let lista=POPULARES.filter(t=>t.includes(termo)).slice(0,6);if(termo.length===0)lista=POPULARES.slice(0,5);if(lista.length===0)lista=[termo];d.innerHTML=lista.map(t=>`<div class="px-4 py-3.5 text-white font-semibold text-sm hover:bg-white/10 cursor-pointer border-b border-white/5" onclick="selecionar('${t}')">${t}</div>`).join('');d.classList.remove('hidden');}
 async function selecionar(t){document.getElementById('busca').value=t;document.getElementById('sugestoes').classList.add('hidden');const prev=document.getElementById('preview');prev.classList.remove('hidden');prev.innerHTML=`Buscando ${t}...`;let preco=t.includes('11')?10.25:42.6;let dy=t.includes('11')?0.12:0.06;try{const r=await fetch(`https://brapi.dev/api/quote/${t}?token=qtZQumqzTgLyLYyMd5Ph9n&dividends=true`);const j=await r.json();const dados=j.results?.[0];if(dados?.regularMarketPrice)preco=dados.regularMarketPrice;if(dados?.dividendsData?.cashDividends?.length){const data12m=new Date();data12m.setFullYear(data12m.getFullYear()-1);const soma=dados.dividendsData.cashDividends.filter(x=>new Date(x.paymentDate)>data12m).reduce((a,b)=>a+(b.rate||0),0);if(soma>0)dy=soma/preco;}}catch(e){}sel={ticker:t,preco,dy,rendDia:preco*dy/365};document.getElementById('infoAtivo').classList.remove('hidden');document.getElementById('infoAtivo').innerHTML=`<b>${t}</b> • R$ ${preco.toFixed(2)} • <span class="text-emerald-400">${(dy*100).toFixed(2)}% a.a.</span>`;prev.innerHTML=`${t} • R$ ${preco.toFixed(2)} • ${(dy*100).toFixed(2)}%`;}
 function onQtdChange(){if(trava||!sel) return;trava=true;const qtd=parseFloat(document.getElementById('qtd').value)||0;document.getElementById('total').value=qtd>0?(qtd*sel.preco).toFixed(2):'';trava=false;}function onTotalChange(){if(trava||!sel) return;trava=true;const total=parseFloat(document.getElementById('total').value)||0;document.getElementById('qtd').value=total>0?Math.floor(total/sel.preco):'';trava=false;}
-function adicionar(){const cart=carteiras.find(c=>c.id===ativaId);if((window.tipoAtivo||'B3')==='B3'){const qtd=parseInt(document.getElementById('qtd').value)||0;if(!sel||qtd<=0)return alert('Selecione ativo');cart.ativos.push({id:Date.now(),ticker:sel.ticker,qtd,preco:sel.preco,dy:sel.dy,rendDia:(sel.preco*sel.dy/365)*qtd});}else{const taxa=parseFloat(document.getElementById('taxaFixa').value)||0;const valor=parseFloat(document.getElementById('valorFixa').value)||0;const nome=document.getElementById('nomeFixa').value||'Reserva';if(!valor||!taxa)return;cart.ativos.push({id:Date.now(),ticker:nome,preco:valor,qtd:1,dy:taxa/100,rendDia:valor*(taxa/100)/365});}save();renderLista();}
+function adicionar(){const cart=carteiras.find(c=>c.id===ativaId);if((window.tipoAtivo||'B3')==='B3'){const qtd=parseInt(document.getElementById('qtd').value)||0;if(!sel||qtd<=0)return alert('Selecione ativo e digite QTD');cart.ativos.push({id:Date.now(),ticker:sel.ticker,qtd,preco:sel.preco,dy:sel.dy,rendDia:(sel.preco*sel.dy/365)*qtd});}else{const taxa=parseFloat(document.getElementById('taxaFixa').value)||0;const valor=parseFloat(document.getElementById('valorFixa').value)||0;const nome=document.getElementById('nomeFixa').value||'Reserva';if(!valor||!taxa)return;cart.ativos.push({id:Date.now(),ticker:nome,preco:valor,qtd:1,dy:taxa/100,rendDia:valor*(taxa/100)/365});}save();renderLista();document.getElementById('qtd').value='';document.getElementById('total').value='';document.getElementById('valorFixa').value='';}
 function removerAtivo(id){const c=carteiras.find(x=>x.id===ativaId);c.ativos=c.ativos.filter(a=>a.id!==id);save();renderLista();}
 function renderLista(){const c=carteiras.find(x=>x.id===ativaId);const totalDia=c?c.ativos.reduce((a,b)=>a+b.rendDia,0):0;window.totalDia=totalDia;document.getElementById('lista').innerHTML=c?c.ativos.map(a=>`<div class="bg-white/[0.06] rounded-xl p-3 flex justify-between text-sm text-white"><div><b>${a.ticker}</b> ${a.qtd>1?`x${a.qtd}`:''} <span style="color:var(--neon)">${(a.dy*100).toFixed(2)}%</span><div class="mono text-[10px] text-white/40">R$ ${(a.rendDia/86400).toFixed(7)}/s</div></div><button onclick="removerAtivo(${a.id})" class="text-white/40">✕</button></div>`).join(''):'<div class="text-xs text-white/30 text-center py-6">Carteira vazia</div>';renderAbas();}
 function toggleModal(){document.getElementById('modal').classList.toggle('translate-y-full');}
 function togglePause(){pausado=!pausado;document.getElementById('btnPause').innerText=pausado?'▶':'⏸';}
-setInterval(()=>{if(pausado) return;const agora=new Date();const seg=(agora-inicio)/1000;const ps=(window.totalDia||0)/86400;const acum=seg*ps;const fmt='R$ '+acum.toFixed(2).replace('.',',');document.getElementById('valorGrande').innerText=fmt;document.getElementById('acumuladoHoje').innerText=fmt;document.getElementById('cardHoje').innerText='R$ '+acum.toFixed(2);document.getElementById('cardMes').innerText='R$ '+((window.totalDia||0)*30).toFixed(0);document.getElementById('cardAno').innerText='R$ '+((window.totalDia||0)*365).toFixed(0);document.getElementById('segTxt').innerText=`R$ ${ps.toFixed(4).replace('.',',')}/s`;document.getElementById('sub').innerText=`${carteiras.find(c=>c.id===ativaId)?.ativos.length||0} ativo(s) • R$ ${ps.toFixed(4).replace('.',',')}/s`;document.getElementById('horaAgora').innerText=agora.toLocaleTimeString('pt-BR');const pctDia=(agora.getHours()*3600+agora.getMinutes()*60+agora.getSeconds())/86400;document.getElementById('ring').style.setProperty('--pct',(pctDia*100)+'%');},120);
+setInterval(()=>{if(pausado) return;const agora=new Date();const seg=(agora-inicio)/1000;const ps=(window.totalDia||0)/86400;const acum=seg*ps;const fmt='R$ '+acum.toFixed(2).replace('.',',');document.getElementById('valorGrande').innerText=fmt;document.getElementById('acumuladoHoje').innerText=fmt;document.getElementById('cardHoje').innerText='R$ '+acum.toFixed(2);document.getElementById('cardMes').innerText='R$ '+((window.totalDia||0)*30).toFixed(0);document.getElementById('cardAno').innerText='R$ '+((window.totalDia||0)*365).toFixed(0);document.getElementById('segTxt').innerText=`R$ ${ps.toFixed(4).replace('.',',')}/s`;document.getElementById('sub').innerText=`${carteiras.find(c=>c.id===ativaId)?.ativos.length||0} ativo(s) • R$ ${ps.toFixed(4).replace('.',',')}/s • ${carteiras.find(c=>c.id===ativaId)?.nome||''}`;document.getElementById('horaAgora').innerText=agora.toLocaleTimeString('pt-BR');const pctDia=(agora.getHours()*3600+agora.getMinutes()*60+agora.getSeconds())/86400;document.getElementById('ring').style.setProperty('--pct',(pctDia*100)+'%');},120);
 applyFonts();renderAbas();renderLista();
 </script>
 </body>
