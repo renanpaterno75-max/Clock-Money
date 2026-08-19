@@ -1,93 +1,63 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Clock-Money</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>.mono{font-family:monospace}</style>
-</head>
-<body class="bg-black text-white p-4 flex justify-center">
-<div class="w-full max-w-6xl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Clock-Money</title><script src="https://cdn.tailwindcss.com"></script><style>.mono{font-family:monospace}</style></head>
+<body class="bg-black text-white p-4 flex justify-center"><div class="w-full max-w-6xl">
 <h1 class="text-3xl font-bold text-center py-6">⏰ CLOCK-MONEY <span class="text-emerald-400">B3 AO VIVO</span></h1>
-<div class="grid md:grid-cols-3 gap-6">
-<div class="md:col-span-2 bg-zinc-900 rounded-[24px] p-8 border border-white/10 text-center">
-<div class="text-xs opacity-50">RENDENDO AGORA</div>
-<div id="valor" class="mono text-6xl font-bold text-emerald-400 mt-4">R$ 0,0000</div>
-<div id="info" class="mono text-sm mt-2 opacity-60">Adicione um ativo</div>
-<div class="grid grid-cols-3 gap-3 mt-8">
-<div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">HOJE</div><div id="hoje" class="mono font-bold">R$ 0,00</div></div>
-<div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">MÊS</div><div id="mes" class="mono font-bold">R$ 0,00</div></div>
-<div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">ANO</div><div id="ano" class="mono font-bold">R$ 0,00</div></div>
-</div>
-</div>
-<div class="bg-zinc-900 rounded-[24px] p-5 border border-white/10">
-<input id="busca" class="w-full bg-black border border-white/10 rounded-xl p-3 outline-none focus:border-emerald-500" placeholder="Digite B3SA3, WEGE3..." oninput="buscar(this.value)">
-<div id="sugestoes" class="bg-zinc-800 rounded-xl mt-2 max-h-52 overflow-auto hidden"></div>
-<input id="qtd" type="number" class="w-full bg-black border border-white/10 rounded-xl p-3 mt-3" placeholder="Quantidade ex: 100">
-<div id="preview" class="text-xs mono bg-black p-3 rounded-xl mt-3 hidden"></div>
-<button onclick="adicionar()" class="w-full bg-emerald-400 text-black font-bold rounded-xl p-3 mt-3">Adicionar</button>
-<div id="lista" class="mt-5 space-y-2"></div>
-<button onclick="limparTudo()" class="w-full mt-4 text-xs opacity-30">Limpar carteira</button>
-</div>
-</div>
-</div>
+<div class="grid md:grid-cols-3 gap-6"><div class="md:col-span-2 bg-zinc-900 rounded-[24px] p-8 border border-white/10 text-center">
+<div class="text-xs opacity-50">RENDENDO AGORA</div><div id="valor" class="mono text-6xl font-bold text-emerald-400 mt-4">R$ 0,0000</div><div id="info" class="mono text-sm mt-2 opacity-60">Adicione um ativo</div>
+<div class="grid grid-cols-3 gap-3 mt-8"><div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">HOJE</div><div id="hoje" class="mono font-bold">R$ 0,00</div></div><div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">MÊS</div><div id="mes" class="mono font-bold">R$ 0,00</div></div><div class="bg-black rounded-xl p-3"><div class="text-[10px] opacity-50">ANO</div><div id="ano" class="mono font-bold">R$ 0,00</div></div></div></div>
+<div class="bg-zinc-900 rounded-[24px] p-5 border border-white/10"><input id="busca" class="w-full bg-black border border-white/10 rounded-xl p-3 outline-none" placeholder="Digite B3SA3, WEGE3..." oninput="buscar(this.value)"><div id="sugestoes" class="bg-zinc-800 rounded-xl mt-2 max-h-52 overflow-auto hidden"></div><input id="qtd" type="number" class="w-full bg-black border border-white/10 rounded-xl p-3 mt-3" placeholder="Quantidade"><div id="preview" class="text-xs mono bg-black p-3 rounded-xl mt-3 hidden"></div><button onclick="adicionar()" class="w-full bg-emerald-400 text-black font-bold rounded-xl p-3 mt-3">Adicionar</button><div id="lista" class="mt-5 space-y-2"></div><button onclick="localStorage.clear();location.reload()" class="w-full mt-4 text-xs opacity-30">Limpar carteira</button></div></div></div>
 <script>
 const TOKEN = "qtZQumqzTgLyLYyMd5Ph9n";
 let carteira = JSON.parse(localStorage.getItem('carteiraB3')||'[]');
-let sel = null;
-let inicio = new Date(); inicio.setHours(0,0,0,0);
-
-async function brapiFetch(url){
-  let r = await fetch(url, { headers: { "Authorization": `Bearer ${TOKEN}` } });
-  return r.json();
-}
+let sel=null; let inicio=new Date(); inicio.setHours(0,0,0,0);
 
 async function buscar(q){
- let div=document.getElementById('sugestoes');
- if(q.length<2){div.classList.add('hidden');return;}
- div.innerHTML=`<div class="p-3 hover:bg-white/10 cursor-pointer" onclick="selecionar('${q.toUpperCase()}')">Usar ${q.toUpperCase()}</div>`;
- div.classList.remove('hidden');
+ let d=document.getElementById('sugestoes');
+ if(q.length<2){d.classList.add('hidden');return;}
+ d.innerHTML=`<div class="p-3 hover:bg-white/10 cursor-pointer" onclick="selecionar('${q.toUpperCase()}')">Usar ${q.toUpperCase()}</div>`;
+ d.classList.remove('hidden');
  try{
-  let d = await brapiFetch(`https://brapi.dev/api/available?search=${q}`);
-  if(d.stocks) div.innerHTML=d.stocks.slice(0,8).map(t=>`<div class="p-3 hover:bg-white/10 cursor-pointer" onclick="selecionar('${t}')">${t}</div>`).join('');
+  let r=await fetch(`https://brapi.dev/api/available?search=${q}&token=${TOKEN}`);
+  let j=await r.json();
+  if(j.stocks) d.innerHTML=j.stocks.slice(0,8).map(t=>`<div class="p-3 hover:bg-white/10 cursor-pointer" onclick="selecionar('${t}')">${t}</div>`).join('');
  }catch(e){}
 }
 
 async function selecionar(t){
  document.getElementById('busca').value=t;
  document.getElementById('sugestoes').classList.add('hidden');
- let prev=document.getElementById('preview'); prev.classList.remove('hidden'); prev.innerText=`Buscando preço de ${t}...`;
+ let prev=document.getElementById('preview'); prev.classList.remove('hidden'); prev.innerText=`Buscando ${t}...`;
+ let preco=null;
  try{
-  let d = await brapiFetch(`https://brapi.dev/api/quote/${t}?dividends=true`);
-  let stock = d.results? d.results[0] : null;
-  if(stock && stock.regularMarketPrice){
-    let preco = stock.regularMarketPrice;
-    let dy = 0.06;
-    // se tiver dividendos, calcula DY real
-    if(stock.dividendsData && stock.dividendsData.cashDividends && stock.dividendsData.cashDividends.length){
-      let soma = stock.dividendsData.cashDividends.slice(0,12).reduce((a,b)=>a+ (b.rate||0),0);
-      if(soma>0) dy = soma/preco;
-    }
-    sel={ticker:t, preco, dy, rendDia:(preco*dy/365)};
-    prev.innerHTML=`<b>${t}</b> - R$ ${preco.toFixed(2)}<br>DY ${(dy*100).toFixed(2)}% a.a.<br>R$ ${sel.rendDia.toFixed(4)}/dia por cota`;
-  }else throw "sem preco";
- }catch(e){
-   prev.innerText=`Erro preço ${t}: ${e}. Usando R$ 50/cota teste`;
-   sel={ticker:t, preco:50, dy:0.06, rendDia:0.0082};
+  let r=await fetch(`https://brapi.dev/api/quote/${t}?token=${TOKEN}&dividends=true&fundamental=true`);
+  let j=await r.json();
+  if(j.results && j.results[0] && j.results[0].regularMarketPrice) preco=j.results[0].regularMarketPrice;
+ }catch(e){}
+ if(!preco){
+   try{
+    let r2=await fetch(`https://brapi.dev/api/quote/${t}?range=1d&interval=1d`);
+    let j2=await r2.json();
+    if(j2.results && j2.results[0]) preco=j2.results[0].regularMarketPrice;
+   }catch(e){}
+ }
+ if(preco){
+   let dy=0.06;
+   sel={ticker:t, preco, dy, rendDia:(preco*dy/365)};
+   prev.innerHTML=`<b>${t}</b> ✅ R$ ${preco.toFixed(2)}<br>DY ~${(dy*100).toFixed(1)}% | R$ ${sel.rendDia.toFixed(4)}/dia por cota`;
+ }else{
+   prev.innerHTML=`<b>${t}</b> ⚠️ API sem preço (plano free limitado).<br>Vai no brapi.dev e clica ATIVAR PLANO FREE.<br>Usando temporário R$ 50/cota`;
+   sel={ticker:t, preco:50, dy:0.06, rendDia:0.008219};
  }
 }
 
 function adicionar(){
  let qtd=parseInt(document.getElementById('qtd').value)||0;
- if(!sel||qtd<=0) return alert('Selecione ativo e digite quantidade');
- carteira.push({ticker:sel.ticker, qtd, rendDia:sel.rendDia*qtd, preco:sel.preco});
- localStorage.setItem('carteiraB3', JSON.stringify(carteira));
- render();
- document.getElementById('qtd').value=''; document.getElementById('preview').classList.add('hidden'); sel=null;
- document.getElementById('busca').value='';
+ if(!sel||qtd<=0) return alert('Selecione ativo e qtd');
+ carteira.push({ticker:sel.ticker, qtd, rendDia:sel.rendDia*qtd}); localStorage.setItem('carteiraB3',JSON.stringify(carteira)); render();
+ document.getElementById('qtd').value=''; document.getElementById('preview').classList.add('hidden'); sel=null; document.getElementById('busca').value='';
 }
-function remover(i){ carteira.splice(i,1); localStorage.setItem('carteiraB3', JSON.stringify(carteira)); render(); }
-function limparTudo(){ carteira=[]; localStorage.removeItem('carteiraB3'); render(); }
+function remover(i){carteira.splice(i,1);localStorage.setItem('carteiraB3',JSON.stringify(carteira));render();}
 function render(){
  let total=carteira.reduce((a,b)=>a+b.rendDia,0);
  document.getElementById('lista').innerHTML=carteira.map((c,i)=>`<div class="bg-black rounded-xl p-3 flex justify-between text-sm"><div><b>${c.ticker}</b> x${c.qtd}<div class="mono text-[10px] text-emerald-400">R$ ${(c.rendDia/86400).toFixed(6)}/s</div></div><button onclick="remover(${i})">x</button></div>`).join('');
@@ -96,12 +66,6 @@ function render(){
  document.getElementById('ano').innerText='R$ '+(total*365).toFixed(0);
  window.totalDia=total;
 }
-setInterval(()=>{
- let seg=(new Date()-inicio)/1000; let ps=(window.totalDia||0)/86400;
- document.getElementById('valor').innerText='R$ '+(seg*ps).toFixed(4);
- document.getElementById('info').innerText=ps>0?`R$ ${ps.toFixed(6)}/s | ${carteira.length} ativos`:'Adicione um ativo';
-},100);
+setInterval(()=>{let s=(new Date()-inicio)/1000; let ps=(window.totalDia||0)/86400; document.getElementById('valor').innerText='R$ '+(s*ps).toFixed(4); document.getElementById('info').innerText=ps>0?`R$ ${ps.toFixed(6)}/s | ${carteira.length} ativos`:'Adicione um ativo';},100);
 render();
-</script>
-</body>
-</html>
+</script></body></html>
