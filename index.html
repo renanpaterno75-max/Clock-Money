@@ -1,65 +1,64 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clock-Money - Seu Tempo é Dinheiro</title>
-<style>
-body { margin:0; background:#0a0a0a; color:white; font-family: sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; background-image: url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85'); background-size:cover; background-position:center; }
-.card { background: rgba(0,0,0,0.8); padding:30px; border-radius:20px; text-align:center; backdrop-filter: blur(10px); border:1px solid #333; width:90%; max-width:400px; }
-.clock { width:280px; height:280px; border:8px solid #fff; border-radius:50%; margin:20px auto; display:flex; flex-direction:column; align-items:center; justify-content:center; background: radial-gradient(#222, #000); box-shadow: 0 0 40px rgba(0,255,100,0.3); }
-#valor { font-size:42px; font-weight:bold; color:#00ff88; }
-#detalhe { font-size:14px; opacity:0.7; margin-top:10px; }
-input { width:100%; padding:10px; margin:5px 0; border-radius:8px; border:none; }
-button { width:100%; padding:12px; background:#00ff88; color:black; font-weight:bold; border:none; border-radius:8px; margin-top:10px; cursor:pointer; }
-.lista { text-align:left; font-size:14px; margin-top:15px; max-height:150px; overflow:auto; }
-</style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clock-Money PRO</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+<style>body{font-family:Inter}.mono{font-family:'JetBrains Mono'}.glass{backdrop-filter:blur(16px); background:rgba(255,255,255,0.08);}</style>
 </head>
-<body>
-<div class="card">
-<h2>⏰ Clock-Money</h2>
-<div class="clock">
-<div id="valor">R$ 0,0000</div>
-<div id="detalhe">R$ 0,00 / dia<br><span id="porSegundo">R$ 0,0000 / seg</span></div>
+<body class="bg-[#0a0a0a] text-white min-h-screen flex flex-col items-center p-4">
+<div class="w-full max-w-5xl">
+<header class="flex justify-between items-center py-6"><h1 class="text-2xl font-bold">⏰ CLOCK-MONEY <span class="text-emerald-400">PRO</span></h1><div class="text-sm opacity-60" id="horaReal"></div></header>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="md:col-span-2 glass rounded-[30px] p-8 border border-white/10 flex flex-col items-center justify-center min-h-[400px]">
+<div class="relative w-[280px] h-[280px] rounded-full border-[10px] border-white/10 flex items-center justify-center bg-black shadow-[0_0_80px_rgba(16,185,129,0.3)]">
+<div class="text-center"><div id="valor" class="mono text-5xl font-bold text-emerald-400">R$ 0,0000</div><div class="text-xs opacity-50 mt-2 tracking-widest">GANHANDO AGORA</div><div id="porSegundo" class="mono text-sm mt-3 text-emerald-300">R$ 0,0000 / seg</div></div>
 </div>
-<input id="acao" placeholder="Ex: PETR4">
-<input id="qtd" type="number" placeholder="Quantidade">
-<input id="rendDia" type="number" placeholder="Rende por dia R$ (ex: 1000)">
-<button onclick="adicionar()">Adicionar à carteira</button>
-<button onclick="zerar()" style="background:#333;color:white;">Zerar hoje</button>
-<div class="lista" id="lista"></div>
+<div class="grid grid-cols-3 gap-4 w-full mt-8"><div class="glass rounded-2xl p-4 text-center"><div class="text-xs opacity-50">HOJE</div><div id="hoje" class="mono text-lg font-bold">R$ 0,00</div></div><div class="glass rounded-2xl p-4 text-center"><div class="text-xs opacity-50">MÊS</div><div id="mes" class="mono text-lg font-bold">R$ 0,00</div></div><div class="glass rounded-2xl p-4 text-center"><div class="text-xs opacity-50">ANO</div><div id="ano" class="mono text-lg font-bold">R$ 0,00</div></div></div>
+</div>
+<div class="glass rounded-[30px] p-6 border border-white/10">
+<h3 class="font-bold mb-4">Adicionar Ativo</h3>
+<input id="ticker" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 mb-3 outline-none focus:border-emerald-500" placeholder="Ticker ex: PETR4">
+<input id="qtd" type="number" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 mb-3" placeholder="Quantidade">
+<input id="rendDia" type="number" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 mb-3" placeholder="Renda por dia R$">
+<button onclick="adicionar()" class="w-full bg-emerald-400 text-black font-bold rounded-xl p-3 hover:bg-emerald-300">Adicionar</button>
+<div id="lista" class="mt-6 space-y-2 max-h-[250px] overflow-auto"></div>
+<button onclick="zerar()" class="w-full mt-4 text-xs opacity-30">Zerar contador do dia</button>
+</div>
+</div>
 </div>
 <script>
-let totalDia = parseFloat(localStorage.getItem('totalDia')) || 0;
-let carteira = JSON.parse(localStorage.getItem('carteira')||'[]');
-let acumulado = 0;
-let inicioDia = new Date(); inicioDia.setHours(0,0,0,0);
-
-function atualizarLista(){
-  document.getElementById('lista').innerHTML = carteira.map(c=>`• ${c.acao} - ${c.qtd} - R$${c.rendDia}/dia`).join('<br>');
-  document.getElementById('detalhe').innerHTML = `Hoje: R$ ${totalDia.toFixed(2)}<br><span id="porSegundo">R$ ${(totalDia/86400).toFixed(4)} / seg</span>`;
+let totalDia = parseFloat(localStorage.getItem('totalDia'))||0;
+let carteira=JSON.parse(localStorage.getItem('carteira')||'[]');
+let inicio=new Date(); inicio.setHours(0,0,0,0);
+function salvar(){localStorage.setItem('totalDia',totalDia);localStorage.setItem('carteira',JSON.stringify(carteira));}
+function renderLista(){
+  let el=document.getElementById('lista'); el.innerHTML='';
+  carteira.forEach((c,i)=>{
+    let ps=c.rendDia/86400;
+    el.innerHTML+=`<div class="bg-black/40 rounded-xl p-3 flex justify-between items-center border border-white/5"><div><div class="font-bold text-sm">${c.ticker} <span class="opacity-50 font-normal">x${c.qtd}</span></div><div class="mono text-xs text-emerald-400">R$ ${ps.toFixed(4)}/s</div></div><button onclick="remover(${i})" class="opacity-30">x</button></div>`;
+  });
+  document.getElementById('hoje').innerText='R$ '+totalDia.toFixed(2);
+  document.getElementById('mes').innerText='R$ '+(totalDia*30).toFixed(2);
+  document.getElementById('ano').innerText='R$ '+(totalDia*365).toFixed(2);
 }
 function adicionar(){
-  let acao=document.getElementById('acao').value;
-  let qtd=document.getElementById('qtd').value;
-  let rendDia=parseFloat(document.getElementById('rendDia').value);
-  if(!rendDia) return alert('Digite o rendimento por dia');
-  carteira.push({acao,qtd,rendDia});
-  totalDia+=rendDia;
-  localStorage.setItem('carteira',JSON.stringify(carteira));
-  localStorage.setItem('totalDia',totalDia);
-  document.getElementById('acao').value='';document.getElementById('qtd').value='';document.getElementById('rendDia').value='';
-  atualizarLista();
+  let t=document.getElementById('ticker').value.toUpperCase()||'ATIVO';
+  let q=document.getElementById('qtd').value||0;
+  let r=parseFloat(document.getElementById('rendDia').value); if(!r) return alert('Digite renda/dia');
+  carteira.push({ticker:t,qtd:q,rendDia:r}); totalDia+=r; salvar(); renderLista();
+  document.getElementById('ticker').value='';document.getElementById('qtd').value='';document.getElementById('rendDia').value='';
 }
-function zerar(){ acumulado=0; inicioDia=new Date(); inicioDia.setHours(0,0,0,0); }
+function remover(i){ totalDia-=carteira[i].rendDia; carteira.splice(i,1); salvar(); renderLista(); }
+function zerar(){ localStorage.setItem('acumuladoOffset',document.getElementById('valor').innerText); inicio=new Date(); }
 setInterval(()=>{
-  let agora=new Date();
-  let segundosDesdeMeiaNoite = (agora - inicioDia)/1000;
-  let porSegundo = totalDia/86400;
-  acumulado = segundosDesdeMeiaNoite * porSegundo;
-  document.getElementById('valor').innerText = 'R$ ' + acumulado.toFixed(4);
-},100);
-atualizarLista();
+  let seg=(new Date()-inicio)/1000; let ps=totalDia/86400; let acum=seg*ps;
+  document.getElementById('valor').innerText='R$ '+acum.toFixed(4);
+  document.getElementById('porSegundo').innerText='R$ '+ps.toFixed(4)+' / seg';
+  document.getElementById('horaReal').innerText=new Date().toLocaleTimeString();
+},80);
+renderLista();
 </script>
 </body>
 </html>
