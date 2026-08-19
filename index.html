@@ -2,29 +2,40 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Clock-Money Custom</title>
+<title>Clock-Money v5.1 Fix</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&family=Inter:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{--neon:#9effbf;--neon-glow:rgba(158,255,191,.55)}
 body{margin:0;min-height:100dvh;font-family:'Inter',sans-serif;display:flex;flex-direction:column;align-items:center;transition:background.5s}
-.bg-dark{background:#080808}.bg-graphite{background:radial-gradient(circle at 50% 0%,#1a1a1a,#080808)}.bg-warm{background:radial-gradient(circle at 50% 30%,#1e1810 0%,#0e0a06 50%,#050301 100%)}.bg-purple{background:radial-gradient(circle at 50% 0%,#1a1025,#08060e)}.bg-matrix{background:radial-gradient(circle at 50% 0%,#0a1a0e,#050805)}
+.bg-dark{background:#080808}.bg-graphite{background:#101010}.bg-warm{background:#0e0a06}.bg-purple{background:#0d0816}.bg-matrix{background:#050a06}
 .mono{font-family:'JetBrains Mono',monospace}
-.neon{color:var(--neon);text-shadow:0 0 12px var(--neon),0 0 32px var(--neon-glow)}
-@keyframes pulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.03);filter:brightness(1.25)}}.pulse{animation:pulse 1.6s ease-in-out infinite}
-.clock-wrap{position:relative;width:380px;height:380px;max-width:84vw;max-height:84vw}
-.progress-ring{position:absolute;inset:0;transform:rotate(-90deg)}.progress-ring circle{fill:none;stroke-width:3;stroke-linecap:round}
-.bg-ring{stroke:rgba(255,255,255,.06)}.fg-ring{stroke:var(--neon);filter:drop-shadow(0 0 8px var(--neon));transition:stroke-dashoffset.5s}
-.clock{position:absolute;inset:14px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#232323 0%,#121212 40%,#080808 70%,#000 100%);border:1px solid rgba(255,255,255,.09);box-shadow:inset 0 1px 1px rgba(255,255,255,.12),0 20px 80px rgba(0,0,0,.9)}
-.glass{background:rgba(22,22,22,.88);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08)}
-.color-dot{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.2);transition:transform.2s}
-.color-dot.active{transform:scale(1.25);border-color:white;box-shadow:0 0 12px currentColor}
+.neon{color:var(--neon);text-shadow:0 0 12px var(--neon),0 0 28px var(--neon-glow)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}.pulse{animation:pulse 1.6s ease-in-out infinite}
+/* ANEL SEM QUADRADO - CSS PURO */
+.clock-wrap{position:relative;width:380px;height:380px;max-width:84vw;max-height:84vw;display:flex;align-items:center;justify-content:center}
+.ring{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(var(--neon) var(--pct,0%), rgba(255,255,255,.08) 0%);
+  -webkit-mask:radial-gradient(circle, transparent 68%, black 70%);
+  mask:radial-gradient(circle, transparent 68%, black 70%);
+}
+.clock{
+  position:relative;width:86%;height:86%;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,#232323 0%,#121212 40%,#080808 70%,#000 100%);
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.12),0 20px 80px rgba(0,0,0,.9);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2
+}
+.glass{background:rgba(22,22,22,.92);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08)}
+.color-dot{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.2)}
+.color-dot.active{transform:scale(1.25);border-color:white}
 </style>
 </head>
-<body class="bg-dark relative">
+<body class="bg-dark">
 
 <div class="z-10 w-full max-w-[980px] px-5 pt-6 flex justify-between items-center">
-<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-white text-black font-bold flex items-center justify-center text-xs">C$</div><div><div class="text-white font-bold text-sm">CLOCK-MONEY</div><div class="text-white/40 text-[10px] tracking-[0.2em]">v5.0 CUSTOM</div></div></div>
+<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-white text-black font-bold flex items-center justify-center text-xs">C$</div><div><div class="text-white font-bold text-sm">CLOCK-MONEY</div><div class="text-white/40 text-[10px] tracking-[0.2em]">v5.1 FIX</div></div></div>
 <div class="flex gap-2"><button onclick="toggleCustom()" class="glass px-4 py-2 rounded-full text-xs text-white">🎨 Personalizar</button><div id="totalGeral" class="glass px-4 py-2 rounded-full text-xs mono text-white/70 hidden md:block"></div></div>
 </div>
 
@@ -32,13 +43,14 @@ body{margin:0;min-height:100dvh;font-family:'Inter',sans-serif;display:flex;flex
 
 <div class="z-10 flex-1 flex flex-col lg:flex-row items-center justify-center gap-10 w-full max-w-[980px] px-5 py-8">
   <div class="clock-wrap">
-    <svg class="progress-ring" viewBox="0 0 100 100"><circle class="bg-ring" cx="50" cy="50" r="47"/><circle id="fgRing" class="fg-ring" cx="50" cy="50" r="47" stroke-dasharray="295" stroke-dashoffset="295"/></svg>
-    <div class="clock flex flex-col items-center justify-center text-center">
+    <div id="ring" class="ring"></div>
+    <div class="clock text-center">
       <div class="text-[9px] tracking-[0.5em] text-white/20 font-bold">HOJE</div>
       <div id="valorGrande" class="mono font-extrabold neon pulse mt-1 tracking-tighter" style="font-size:46px">R$ 0,00</div>
-      <div class="mt-2 flex items-center gap-2 text-[10px] mono text-white/40"><span id="horaAgora">00:00:00</span><span class="w-1 h-1 rounded-full animate-pulse" style="background:var(--neon)"></span><span id="segTxt">R$ 0,0000/s</span></div>
+      <div class="mt-2 flex items-center gap-2 text-[10px] mono text-white/40"><span id="horaAgora">00:00:00</span><span class="w-1 h-1 rounded-full" style="background:var(--neon)"></span><span id="segTxt">R$ 0,0000/s</span></div>
     </div>
   </div>
+
   <div class="w-full max-w-[380px] space-y-3">
     <div class="glass rounded-[20px] p-5"><div class="text-[10px] tracking-[0.22em] text-white/35 font-bold">ACUMULADO DE HOJE</div><div id="acumuladoHoje" class="mono text-[30px] font-extrabold neon mt-1">R$ 0,00</div><div id="sub" class="mono text-[11px] text-white/45 mt-1"></div>
       <div class="grid grid-cols-3 gap-2 mt-5">
@@ -51,71 +63,16 @@ body{margin:0;min-height:100dvh;font-family:'Inter',sans-serif;display:flex;flex
   </div>
 </div>
 
-<!-- PAINEL PERSONALIZAÇÃO -->
-<div id="customModal" class="fixed inset-0 z-[60] hidden">
-<div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="toggleCustom()"></div>
-<div class="absolute top-0 right-0 h-full w-[360px] max-w-[85vw] bg-[#141414] border-l border-white/10 p-6 overflow-auto">
-<div class="flex justify-between items-center"><h2 class="font-bold text-white">🎨 Personalizar</h2><button onclick="toggleCustom()" class="text-white/40">✕</button></div>
+<div id="customModal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="toggleCustom()"></div><div class="absolute top-0 right-0 h-full w-[360px] max-w-[85vw] bg-[#141414] border-l border-white/10 p-6 overflow-auto"><div class="flex justify-between items-center"><h2 class="font-bold text-white">🎨 Personalizar</h2><button onclick="toggleCustom()" class="text-white/40">✕</button></div><div class="mt-8"><div class="text-xs text-white/60 mb-3 font-bold tracking-widest">COR DO NEON</div><div class="flex gap-3 flex-wrap"><div class="color-dot active" style="background:#9effbf" onclick="setNeon('#9effbf','rgba(158,255,191,.55)',this)"></div><div class="color-dot" style="background:#60a5fa" onclick="setNeon('#60a5fa','rgba(96,165,250,.55)',this)"></div><div class="color-dot" style="background:#ffffff" onclick="setNeon('#ffffff','rgba(255,255,255,.4)',this)"></div><div class="color-dot" style="background:#f472b6" onclick="setNeon('#f472b6','rgba(244,114,182,.55)',this)"></div><div class="color-dot" style="background:#fbbf24" onclick="setNeon('#fbbf24','rgba(251,191,36,.55)',this)"></div></div></div><div class="mt-8"><div class="text-xs text-white/60 mb-3 font-bold tracking-widest">PLANO DE FUNDO</div><div class="grid grid-cols-1 gap-2"><button onclick="setBg('bg-dark')" class="text-left px-4 py-3 rounded-xl bg-[#1a1a1a] border border-white/10 text-white text-sm">🌑 Dark Puro</button><button onclick="setBg('bg-graphite')" class="text-left px-4 py-3 rounded-xl bg-[#222] border border-white/10 text-white text-sm">🪨 Graphite</button><button onclick="setBg('bg-warm')" class="text-left px-4 py-3 rounded-xl bg-[#1e1810] border border-white/10 text-white text-sm">🛋️ Quarto Quente</button><button onclick="setBg('bg-purple')" class="text-left px-4 py-3 rounded-xl bg-[#1a1025] border border-white/10 text-white text-sm">💜 Roxo Neon</button><button onclick="setBg('bg-matrix')" class="text-left px-4 py-3 rounded-xl bg-[#0a1a0e] border border-white/10 text-white text-sm">🟩 Matrix</button></div></div><div class="mt-8"><div class="text-xs text-white/60 mb-3 font-bold tracking-widest">TAMANHO DA FONTE</div><input id="sizeSlider" type="range" min="28" max="72" value="46" class="w-full accent-white" oninput="setSize(this.value)"><div class="flex gap-2 mt-2"><button onclick="setSize(36)" class="flex-1 py-2 rounded-xl bg-zinc-800 text-white text-xs">Pequeno</button><button onclick="setSize(46)" class="flex-1 py-2 rounded-xl bg-white text-black font-bold text-xs">Médio</button><button onclick="setSize(58)" class="flex-1 py-2 rounded-xl bg-zinc-800 text-white text-xs">Gigante</button></div></div></div></div>
 
-<div class="mt-8"><div class="text-xs text-white/60 mb-3 font-bold tracking-widest">COR DO NEON</div>
-<div class="flex gap-3 flex-wrap">
-<div class="color-dot active" style="background:#9effbf;color:#9effbf" onclick="setNeon('#9effbf','rgba(158,255,191,.55)',this)"></div>
-<div class="color-dot" style="background:#60a5fa;color:#60a5fa" onclick="setNeon('#60a5fa','rgba(96,165,250,.55)',this)"></div>
-<div class="color-dot" style="background:#ffffff;color:#ffffff" onclick="setNeon('#ffffff','rgba(255,255,255,.4)',this)"></div>
-<div class="color-dot" style="background:#f472b6;color:#f472b6" onclick="setNeon('#f472b6','rgba(244,114,182,.55)',this)"></div>
-<div class="color-dot" style="background:#fbbf24;color:#fbbf24" onclick="setNeon('#fbbf24','rgba(251,191,36,.55)',this)"></div>
-<div class="color-dot" style="background:#a78bfa;color:#a78bfa" onclick="setNeon('#a78bfa','rgba(167,139,250,.55)',this)"></div>
-</div></div>
-
-<div class="mt-8"><div class="text-xs text-white/60 mb-3 font-bold tracking-widest">PLANO DE FUNDO</div>
-<div class="grid grid-cols-1 gap-2">
-<button onclick="setBg('bg-dark')" class="text-left px-4 py-3 rounded-xl bg-[#1a1a1a] border border-white/10 text-white text-sm">🌑 Dark Puro</button>
-<button onclick="setBg('bg-graphite')" class="text-left px-4 py-3 rounded-xl bg-[#222] border border-white/10 text-white text-sm">🪨 Graphite</button>
-<button onclick="setBg('bg-warm')" class="text-left px-4 py-3 rounded-xl bg-[#1e1810] border border-white/10 text-white text-sm">🛋️ Quarto Quente</button>
-<button onclick="setBg('bg-purple')" class="text-left px-4 py-3 rounded-xl bg-[#1a1025] border border-white/10 text-white text-sm">💜 Roxo Neon</button>
-<button onclick="setBg('bg-matrix')" class="text-left px-4 py-3 rounded-xl bg-[#0a1a0e] border border-white/10 text-white text-sm">🟩 Matrix</button>
-</div></div>
-
-<div class="mt-8"><div class="text-xs text-white/60 mb-3 font-bold tracking-widest">TAMANHO DA FONTE</div>
-<div class="flex gap-2">
-<button onclick="setSize(36)" class="flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm">Pequeno</button>
-<button onclick="setSize(46)" class="flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm">Médio</button>
-<button onclick="setSize(58)" class="flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm">Gigante</button>
-</div>
-<input id="sizeSlider" type="range" min="28" max="72" value="46" class="w-full mt-4 accent-white" oninput="setSize(this.value)">
-</div>
-
-<div class="mt-10 p-4 rounded-xl bg-white/5 border border-white/10 text-xs text-white/50">Dica: Use branco + fundo Quarto Quente para ficar igual ao print do Lovable que você mandou!</div>
-</div>
-</div>
-
-<!-- MODAL CARTEIRA (igual antes) -->
-<div id="modal" class="fixed inset-0 z-50 translate-y-full transition-transform duration-500">
-<div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="toggleModal()"></div>
-<div class="absolute bottom-0 left-0 right-0 bg-[#141414] rounded-t-[28px] max-h-[88dvh] overflow-auto border-t border-white/10 p-6">
-<div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5"></div>
-<div class="flex justify-between items-center text-white"><h2 class="font-bold">Carteiras</h2><button onclick="novaAba()" class="text-xs bg-white text-black px-3 py-1.5 rounded-full font-bold">+ Nova</button></div>
-<div id="abasModal" class="flex gap-2 mt-4 overflow-auto"></div>
-<div class="flex gap-2 mt-5"><button onclick="setTipo('B3')" id="b1" class="flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm">B3</button><button onclick="setTipo('FIXA')" id="b2" class="flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm">CDI / Poupança</button></div>
-<div id="fB3" class="mt-5">
-<input id="busca" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white placeholder-white/30 outline-none" placeholder="MXRF11, WEGE3..." oninput="buscar(this.value)" onfocus="buscar(this.value)">
-<div id="sugestoes" class="mt-2 rounded-xl overflow-hidden hidden border border-white/10 bg-[#1e1e1e]"></div>
-<div id="infoAtivo" class="hidden mt-3 text-white text-sm bg-white/5 p-3 rounded-xl"></div>
-<div class="grid grid-cols-2 gap-3 mt-4"><input id="qtd" type="number" class="w-full bg-black border border-white/15 rounded-xl p-3 text-white font-bold" placeholder="QTD" oninput="onQtdChange()"><input id="total" type="number" class="w-full bg-black border border-white/15 rounded-xl p-3 text-emerald-400 font-bold" placeholder="TOTAL R$" oninput="onTotalChange()"></div>
-</div>
-<div id="fFIXA" class="hidden mt-5 space-y-3"><select id="tipoFixa" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white" onchange="trocaFixa()"><option value="12.15">100% CDI • 12,15%</option><option value="14.58">120% CDI • 14,58%</option><option value="7.5">Poupança • 7,5%</option></select><input id="nomeFixa" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white" placeholder="Nome"><div class="grid grid-cols-2 gap-3"><input id="taxaFixa" type="number" class="bg-black border border-white/15 rounded-xl p-4 text-white mono" placeholder="% a.a."><input id="valorFixa" type="number" class="bg-black border border-white/15 rounded-xl p-4 text-white mono" placeholder="Valor R$"></div></div>
-<div id="preview" class="hidden mt-4 p-3 rounded-xl bg-white/5 text-white mono text-xs"></div>
-<button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4">+ Adicionar</button>
-<div id="lista" class="mt-6 space-y-2 pb-10"></div>
-</div>
-</div>
+<div id="modal" class="fixed inset-0 z-50 translate-y-full transition-transform duration-500"><div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="toggleModal()"></div><div class="absolute bottom-0 left-0 right-0 bg-[#141414] rounded-t-[28px] max-h-[88dvh] overflow-auto border-t border-white/10 p-6"><div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5"></div><div class="flex justify-between items-center text-white"><h2 class="font-bold">Carteiras</h2><button onclick="novaAba()" class="text-xs bg-white text-black px-3 py-1.5 rounded-full font-bold">+ Nova</button></div><div id="abasModal" class="flex gap-2 mt-4 overflow-auto"></div><div class="flex gap-2 mt-5"><button onclick="setTipo('B3')" id="b1" class="flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm">B3</button><button onclick="setTipo('FIXA')" id="b2" class="flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm">CDI / Poupança</button></div><div id="fB3" class="mt-5"><input id="busca" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white placeholder-white/30 outline-none" placeholder="MXRF11..." oninput="buscar(this.value)" onfocus="buscar(this.value)"><div id="sugestoes" class="mt-2 rounded-xl overflow-hidden hidden border border-white/10 bg-[#1e1e1e]"></div><div id="infoAtivo" class="hidden mt-3 text-white text-sm bg-white/5 p-3 rounded-xl"></div><div class="grid grid-cols-2 gap-3 mt-4"><input id="qtd" type="number" class="w-full bg-black border border-white/15 rounded-xl p-3 text-white font-bold" placeholder="QTD" oninput="onQtdChange()"><input id="total" type="number" class="w-full bg-black border border-white/15 rounded-xl p-3 text-emerald-400 font-bold" placeholder="TOTAL R$" oninput="onTotalChange()"></div></div><div id="fFIXA" class="hidden mt-5 space-y-3"><select id="tipoFixa" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white" onchange="trocaFixa()"><option value="12.15">100% CDI • 12,15%</option><option value="14.58">120% CDI • 14,58%</option><option value="7.5">Poupança • 7,5%</option></select><input id="nomeFixa" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white" placeholder="Nome"><div class="grid grid-cols-2 gap-3"><input id="taxaFixa" type="number" class="bg-black border border-white/15 rounded-xl p-4 text-white mono" placeholder="% a.a."><input id="valorFixa" type="number" class="bg-black border border-white/15 rounded-xl p-4 text-white mono" placeholder="Valor R$"></div></div><div id="preview" class="hidden mt-4 p-3 rounded-xl bg-white/5 text-white mono text-xs"></div><button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4">+ Adicionar</button><div id="lista" class="mt-6 space-y-2 pb-10"></div></div></div>
 
 <script>
 const POPULARES=["MXRF11","HGLG11","KNRI11","XPLG11","BCFF11","PETR4","VALE3","WEGE3","ITUB4"];
-let carteiras=JSON.parse(localStorage.getItem('carteirasV24')||'null')||[{id:1,nome:'FIIs',ativos:[]},{id:2,nome:'Ações',ativos:[]},{id:3,nome:'Reserva',ativos:[]}];
-let ativaId=parseInt(localStorage.getItem('ativaId')||'1');let sel=null,trava=false,inicio=new Date();inicio.setHours(0,0,0,0);let pausado=false;window.tipoAtivo='B3';
+let carteiras=JSON.parse(localStorage.getItem('carteirasV24')||'null')||[{id:1,nome:'FIIs',ativos:[]},{id:2,nome:'Ações',ativos:[]},{id:3,nome:'Reserva',ativos:[]},{id:4,nome:'caixinha da nubank',ativos:[{id:1,ticker:'caixinha da nubank',preco:5000,qtd:1,dy:0.1215,rendDia:1.66}]}];
+let ativaId=parseInt(localStorage.getItem('ativaId')||'4');let sel=null,trava=false,inicio=new Date();inicio.setHours(0,0,0,0);let pausado=false;window.tipoAtivo='B3';
 let prefs=JSON.parse(localStorage.getItem('prefsV5')||'{"neon":"#9effbf","glow":"rgba(158,255,191,.55)","bg":"bg-dark","size":46}');
-function applyPrefs(){document.documentElement.style.setProperty('--neon',prefs.neon);document.documentElement.style.setProperty('--neon-glow',prefs.glow);document.body.className=document.body.className.split(' ').filter(c=>!c.startsWith('bg-')).join(' ')+' '+prefs.bg+' relative flex flex-col items-center';document.getElementById('valorGrande').style.fontSize=prefs.size+'px';document.getElementById('sizeSlider').value=prefs.size;localStorage.setItem('prefsV5',JSON.stringify(prefs));}
+function applyPrefs(){document.documentElement.style.setProperty('--neon',prefs.neon);document.documentElement.style.setProperty('--neon-glow',prefs.glow);document.body.className=prefs.bg+' relative flex flex-col items-center min-h-[100dvh]';document.getElementById('valorGrande').style.fontSize=prefs.size+'px';const sl=document.getElementById('sizeSlider');if(sl)sl.value=prefs.size;localStorage.setItem('prefsV5',JSON.stringify(prefs));}
 function setNeon(c,g,el){prefs.neon=c;prefs.glow=g;document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active'));el.classList.add('active');applyPrefs();}
 function setBg(bg){prefs.bg=bg;applyPrefs();}
 function setSize(s){prefs.size=s;applyPrefs();}
@@ -136,7 +93,7 @@ function renderLista(){const c=carteiras.find(x=>x.id===ativaId);const totalDia=
 function toggleModal(){document.getElementById('modal').classList.toggle('translate-y-full');}
 function togglePause(){pausado=!pausado;document.getElementById('btnPause').innerText=pausado?'▶':'⏸';}
 function resetHoje(){inicio=new Date();inicio.setHours(0,0,0,0);}
-setInterval(()=>{if(pausado) return;const agora=new Date();const seg=(agora-inicio)/1000;const ps=(window.totalDia||0)/86400;const acum=seg*ps;const fmt='R$ '+acum.toFixed(2).replace('.',',');document.getElementById('valorGrande').innerText=fmt;document.getElementById('acumuladoHoje').innerText=fmt;document.getElementById('cardHoje').innerText='R$ '+acum.toFixed(2);document.getElementById('cardMes').innerText='R$ '+((window.totalDia||0)*30).toFixed(0);document.getElementById('cardAno').innerText='R$ '+((window.totalDia||0)*365).toFixed(0);document.getElementById('segTxt').innerText=`R$ ${ps.toFixed(4).replace('.',',')}/s`;document.getElementById('sub').innerText=`${carteiras.find(c=>c.id===ativaId)?.ativos.length||0} ativos • R$ ${ps.toFixed(4).replace('.',',')}/s • ${carteiras.find(c=>c.id===ativaId)?.nome}`;document.getElementById('horaAgora').innerText=agora.toLocaleTimeString('pt-BR');const pctDia=(agora.getHours()*3600+agora.getMinutes()*60+agora.getSeconds())/86400;document.getElementById('fgRing').style.strokeDashoffset=295*(1-pctDia);},120);
+setInterval(()=>{if(pausado) return;const agora=new Date();const seg=(agora-inicio)/1000;const ps=(window.totalDia||0)/86400;const acum=seg*ps;const fmt='R$ '+acum.toFixed(2).replace('.',',');document.getElementById('valorGrande').innerText=fmt;document.getElementById('acumuladoHoje').innerText=fmt;document.getElementById('cardHoje').innerText='R$ '+acum.toFixed(2);document.getElementById('cardMes').innerText='R$ '+((window.totalDia||0)*30).toFixed(0);document.getElementById('cardAno').innerText='R$ '+((window.totalDia||0)*365).toFixed(0);document.getElementById('segTxt').innerText=`R$ ${ps.toFixed(4).replace('.',',')}/s`;document.getElementById('sub').innerText=`${carteiras.find(c=>c.id===ativaId)?.ativos.length||0} ativo(s) • R$ ${ps.toFixed(4).replace('.',',')}/s • ${carteiras.find(c=>c.id===ativaId)?.nome}`;document.getElementById('horaAgora').innerText=agora.toLocaleTimeString('pt-BR');const pctDia=(agora.getHours()*3600+agora.getMinutes()*60+agora.getSeconds())/86400;document.getElementById('ring').style.setProperty('--pct',(pctDia*100)+'%');},120);
 applyPrefs();renderAbas();renderLista();
 </script>
 </body>
