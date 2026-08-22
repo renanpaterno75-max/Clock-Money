@@ -5,100 +5,188 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Clock Money</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#00ff66">
-<link rel="apple-touch-icon" href="icon-512.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0a0a1a;--card:#151530;--accent:#00ff66;--text:#fff;--muted:#8b8bb5}
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-height:100vh;padding:16px;display:flex;flex-direction:column;align-items:center}
- .header{width:100%;max-width:480px;display:flex;justify-content:space-between;align-items:center;margin:10px 0 20px}
- .logo{font-size:1.7em;font-weight:900;color:var(--accent)}
- .card{background:var(--card);border:1.5px solid var(--accent);border-radius:22px;padding:22px;width:100%;max-width:480px;margin-bottom:16px}
-  label{font-size:.85em;color:var(--muted);margin-top:12px;display:block}
-  input,select{width:100%;padding:14px;border-radius:12px;border:1px solid #2a2a4a;background:#0f0f25;color:#fff;font-size:1.05em;margin-top:6px;outline:none}
-  input:focus{border-color:var(--accent)}
- .timer{font-size:3em;font-weight:800;text-align:center;margin:18px 0 5px;color:var(--accent)}
- .money{font-size:2em;font-weight:800;text-align:center;margin-bottom:10px}
- .row{display:flex;gap:10px;margin-top:14px}
- .btn{flex:1;padding:14px;border-radius:12px;border:none;font-weight:800;cursor:pointer}
- .btn-start{background:var(--accent);color:#000}
- .btn-pause{background:#fff;color:#000}
- .btn-reset{background:transparent;border:1px solid #ff3b5c;color:#ff3b5c}
- .stats{display:flex;gap:10px;margin-top:18px}
- .stat{flex:1;background:#0f0f25;border-radius:14px;padding:12px;text-align:center;border:1px solid #22224a}
- .stat b{display:block;color:var(--accent)}
- .stat span{font-size:.75em;color:var(--muted)}
- .sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
- .sim-result{background:#0f0f25;border-radius:14px;padding:14px;margin-top:12px;border:1px dashed var(--accent)}
- .sim-result b{color:var(--accent);font-size:1.3em}
+:root{--neon:#00ff88;--bg:#000}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;overflow:hidden;position:relative}
+.bg{position:fixed;inset:0;background: url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1000') center/cover;filter:brightness(0.4) blur(1px);}
+.overlay{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%, transparent 10%, rgba(0,0,0,0.85) 70%)}
+.circle-wrap{position:relative;z-index:2;width:100%;height:58vh;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.circle{width:310px;height:310px;background:radial-gradient(circle at 30% 30%, #1a1a1a, #000);border-radius:50%;box-shadow:0 0 0 1px #222, 0 20px 60px rgba(0,0,0,0.9), 0 0 80px rgba(0,255,136,0.15);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.circle::after{content:'';position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:280px;height:280px;background:radial-gradient(circle, #2a2a2a 0%, #111 60%);border-radius:50%;z-index:-1;border:1px solid #333}
+.label{font-size:0.65em;letter-spacing:4px;color:var(--neon);opacity:0.7;margin-bottom:6px}
+.value{font-family:'Orbitron',monospace;font-size:2.6em;font-weight:900;color:var(--neon);text-shadow:0 0 10px var(--neon), 0 0 30px var(--neon);line-height:1}
+.sub{font-size:0.75em;color:var(--neon);opacity:0.8;margin-top:8px;text-align:center;line-height:1.4}
+.bottom-card{position:relative;z-index:3;margin:-20px 16px 0;background:rgba(15,15,15,0.85);backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:18px 20px}
+.bottom-card.t{font-size:0.7em;letter-spacing:2px;opacity:0.6;color:#c9a86a}
+.bottom-card.v{font-family:'Orbitron';font-size:1.8em;color:var(--neon);text-shadow:0 0 15px var(--neon);margin:4px 0}
+.bottom-card.s{font-size:0.75em;opacity:0.6}
+.controls{position:relative;z-index:3;display:flex;gap:10px;padding:16px;max-width:500px;margin:0 auto;width:100%}
+.btn{flex:1;padding:14px;border-radius:14px;border:none;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-dark{background:rgba(0,0,0,0.8);color:#fff;border:1px solid #333}
+.btn-white{background:#fff;color:#000}
+.modal{position:fixed;inset:0;z-index:10;background:rgba(0,0,0,0.9);display:none;padding:20px;overflow:auto}
+.modal.open{display:flex;flex-direction:column}
+.card{background:#151515;border:1px solid #2a2a2a;border-radius:16px;padding:16px;margin-bottom:12px}
+input,select{width:100%;padding:12px;border-radius:10px;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;margin-top:6px}
+.theme-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid #fff2;display:inline-block;margin:4px}
 </style>
 </head>
 <body>
-  <div class="header">
-    <div class="logo">⏰ Clock Money</div>
-    <button onclick="document.documentElement.style.setProperty('--accent',['#00ff66','#00d4ff','#ff00ff','#ffae00'][Math.floor(Math.random()*4)])" style="background:#151530;border:1px solid var(--accent);color:var(--accent);padding:8px 14px;border-radius:20px">🎨</button>
+<div class="bg" id="bg"></div>
+<div class="overlay"></div>
+
+<div class="circle-wrap">
+  <div class="circle" id="circle">
+    <div class="label">CLOCKMONEY</div>
+    <div class="value" id="mainValue">R$ 0,00</div>
+    <div class="sub" id="mainSub">Hoje: R$ 0,00<br>Por seg: R$ 0,0000</div>
   </div>
+</div>
+
+<div class="bottom-card">
+  <div class="t">ACUMULADO DE HOJE</div>
+  <div class="v" id="todayValue">R$ 0,00</div>
+  <div class="s" id="todaySub">0 ativo(s) • R$ 0,0000 por segundo</div>
+  <div style="margin-top:10px;height:4px;background:#222;border-radius:10px;overflow:hidden"><div id="goalBar" style="height:100%;width:0%;background:var(--neon);box-shadow:0 0 10px var(--neon)"></div></div>
+  <div style="font-size:.7em;margin-top:6px;opacity:.6" id="goalText">Meta: defina em Editar carteira</div>
+</div>
+
+<div class="controls">
+  <button class="btn btn-dark" onclick="openWallet()">🗂️ Editar carteira</button>
+  <button class="btn btn-white" id="pauseBtn" onclick="togglePause()">⏸️ Pausar</button>
+  <button class="btn btn-dark" onclick="resetToday()">↻</button>
+</div>
+
+<div class="modal" id="modalWallet">
+  <h2 style="margin-bottom:16px">Minha Carteira</h2>
 
   <div class="card">
-    <label>Valor por hora (R$)</label>
-    <input id="rate" type="number" value="50">
-    <div class="timer" id="timer">00:00:00</div>
-    <div class="money" id="result">R$ 0,00</div>
-    <div class="row">
-      <button class="btn btn-start" id="startBtn" onclick="toggle()">▶ Iniciar</button>
-      <button class="btn btn-reset" onclick="reset()">Zerar</button>
+    <b>🎨 Temas, Cores e Fonte</b>
+    <div style="margin-top:10px">
+      <div style="font-size:.8em;opacity:.6">Cor Neon</div>
+      <div>
+        <span class="theme-dot" style="background:#00ff88" onclick="setNeon('#00ff88')"></span>
+        <span class="theme-dot" style="background:#00d4ff" onclick="setNeon('#00d4ff')"></span>
+        <span class="theme-dot" style="background:#ff00ff" onclick="setNeon('#ff00ff')"></span>
+        <span class="theme-dot" style="background:#ffaa00" onclick="setNeon('#ffaa00')"></span>
+        <span class="theme-dot" style="background:#ffffff" onclick="setNeon('#ffffff')"></span>
+      </div>
+      <div style="margin-top:10px"><div style="font-size:.8em;opacity:.6">Fonte</div>
+        <select onchange="setFont(this.value)"><option value="Orbitron">Orbitron (igual print)</option><option value="Inter">Inter</option><option value="Space Mono">Space Mono</option></select>
+      </div>
+      <div style="margin-top:10px"><div style="font-size:.8em;opacity:.6">Imagem de fundo (URL)</div><input id="bgInput" placeholder="cole link da imagem" onchange="setBg(this.value)"></div>
     </div>
   </div>
 
   <div class="card">
-    <h3 style="color:var(--accent);margin-bottom:10px">📈 Simulador - Juntar por 14 anos</h3>
-    <div class="sim-grid">
-      <div><label>Por mês (R$)</label><input id="simMonth" type="number" value="50"></div>
-      <div><label>Anos</label><input id="simYears" type="number" value="14"></div>
-    </div>
-    <label>Rendimento</label>
-    <select id="simRate">
-      <option value="0">Sem rendimento (guardado)</option>
-      <option value="0.5">Poupança 0,5% a.m.</option>
-      <option value="0.85" selected>Caixinha 100% CDI 0,85% a.m.</option>
-      <option value="1">1% a.m.</option>
+    <b>🎯 Objetivo</b>
+    <div style="display:flex;gap:8px"><div style="flex:1"><div style="font-size:.8em;opacity:.6">Valor (R$)</div><input id="goalValue" type="number" value="10000"></div><div style="flex:1"><div style="font-size:.8em;opacity:.6">Dias</div><input id="goalDays" type="number" value="365"></div></div>
+  </div>
+
+  <div class="card">
+    <b>➕ Adicionar Ativo (com API)</b>
+    <select id="assetType">
+      <option value="BTC">BTC - Bitcoin (API CoinGecko)</option>
+      <option value="ETH">ETH - Ethereum</option>
+      <option value="PETR4">PETR4 - Petrobras (API Brapi)</option>
+      <option value="VALE3">VALE3 - Vale</option>
+      <option value="CUSTOM">Custom - Valor fixo por segundo</option>
     </select>
-    <div class="sim-result">
-      <div>Você terá: <b id="simTotal">R$ 0,00</b></div>
-      <div style="font-size:.8em;color:var(--muted);margin-top:4px"><span id="simDetail">0 depósitos</span> • Juros: <span id="simJuros">R$ 0,00</span></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <input id="assetQty" type="number" placeholder="Qtd" value="1" style="flex:1">
+      <input id="assetYield" type="number" placeholder="R$/seg ou rendimento %" value="0.0001" style="flex:1">
     </div>
+    <button class="btn btn-white" style="width:100%;margin-top:10px" onclick="addAsset()">Adicionar ativo</button>
+    <div id="assetList" style="margin-top:12px"></div>
   </div>
+
+  <button class="btn btn-dark" style="margin-top:10px" onclick="closeWallet()">Fechar</button>
+</div>
 
 <script>
-let sec=0, interval=null, running=false;
-const rateEl=document.getElementById('rate'), timerEl=document.getElementById('timer'), resultEl=document.getElementById('result');
-rateEl.value=localStorage.getItem('cm_rate')||50;
-function fmt(s){let h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`}
-function money(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
-function calc(){let r=parseFloat(rateEl.value)||0; let v=r*(sec/3600); resultEl.innerText=money(v); return v;}
-function toggle(){if(!running){running=true;document.getElementById('startBtn').innerText='⏸ Pausar';document.getElementById('startBtn').className='btn btn-pause';interval=setInterval(()=>{sec++;timerEl.innerText=fmt(sec);calc();},1000);}else{running=false;document.getElementById('startBtn').innerText='▶ Continuar';document.getElementById('startBtn').className='btn btn-start';clearInterval(interval);}}
-function reset(){clearInterval(interval);running=false;sec=0;timerEl.innerText='00:00:00';resultEl.innerText='R$ 0,00';document.getElementById('startBtn').innerText='▶ Iniciar';document.getElementById('startBtn').className='btn btn-start';}
-rateEl.addEventListener('input',()=>{localStorage.setItem('cm_rate',rateEl.value);calc();});
+let assets=JSON.parse(localStorage.getItem('cm_assets')||'[]');
+let perSec=0, today=parseFloat(localStorage.getItem('cm_today')||'0'), paused=false, lastTick=Date.now();
+let goalV=parseFloat(localStorage.getItem('cm_goalV')||'10000'), goalD=parseInt(localStorage.getItem('cm_goalD')||'365');
 
-// SIMULADOR
-function calcSim(){
-  let p=parseFloat(document.getElementById('simMonth').value)||0;
-  let years=parseFloat(document.getElementById('simYears').value)||14;
-  let taxa=parseFloat(document.getElementById('simRate').value)||0;
-  let n=years*12;
-  let total, juros=0;
-  if(taxa===0){ total=p*n; }
-  else { let i=taxa/100; total=p*(((Math.pow(1+i,n)-1)/i)); juros=total-(p*n); }
-  document.getElementById('simTotal').innerText=money(total);
-  document.getElementById('simDetail').innerText=n+' depósitos de '+money(p);
-  document.getElementById('simJuros').innerText=money(juros);
+async function fetchPrice(ticker){
+  try{
+    if(['BTC','ETH'].includes(ticker)){
+      let id=ticker==='BTC'?'bitcoin':'ethereum';
+      let r=await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=brl`);
+      let j=await r.json(); return j[id].brl;
+    } else {
+      let r=await fetch(`https://brapi.dev/api/quote/${ticker}?token=demo`);
+      let j=await r.json(); return j.results?.[0]?.regularMarketPrice || 0;
+    }
+  }catch{return 0}
 }
-document.getElementById('simMonth').addEventListener('input',calcSim);
-document.getElementById('simYears').addEventListener('input',calcSim);
-document.getElementById('simRate').addEventListener('change',calcSim);
-calcSim();
 
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
+function calcPerSec(){
+  perSec=0;
+  assets.forEach(a=>{ perSec+= (parseFloat(a.qty)||0)*(parseFloat(a.yield)||0) });
+  document.getElementById('todaySub').innerText=`${assets.length} ativo(s) • R$ ${perSec.toFixed(4)} por segundo`;
+}
+
+function renderAssets(){
+  let html=assets.map((a,i)=>`<div style="display:flex;justify-content:space-between;background:#0a0a0a;padding:8px 10px;border-radius:8px;margin-bottom:6px;font-size:.85em"><span>${a.ticker} x${a.qty} = R$${(a.qty*a.yield).toFixed(4)}/s</span><span onclick="assets.splice(${i},1);save()" style="color:#ff5555;cursor:pointer">✕</span></div>`).join('');
+  document.getElementById('assetList').innerHTML=html||'<div style="opacity:.5;font-size:.8em">Nenhum ativo</div>';
+  calcPerSec();
+}
+
+function save(){
+  localStorage.setItem('cm_assets',JSON.stringify(assets));
+  localStorage.setItem('cm_today',today);
+  renderAssets();
+}
+
+function tick(){
+  if(!paused){
+    let now=Date.now(); let delta=(now-lastTick)/1000; lastTick=now;
+    today+=perSec*delta;
+    let total=today;
+    document.getElementById('mainValue').innerText=total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    document.getElementById('mainSub').innerHTML=`Hoje: ${today.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}<br>Por seg: R$ ${perSec.toFixed(4)}`;
+    document.getElementById('todayValue').innerText=total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    goalV=parseFloat(document.getElementById('goalValue').value)||10000;
+    goalD=parseInt(document.getElementById('goalDays').value)||365;
+    let pct=Math.min(100,(total/goalV)*100);
+    document.getElementById('goalBar').style.width=pct+'%';
+    document.getElementById('goalText').innerText=`Meta: ${goalV.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})} em ${goalD} dias • ${pct.toFixed(1)}%`;
+    localStorage.setItem('cm_goalV',goalV); localStorage.setItem('cm_goalD',goalD);
+    save();
+  }
+  requestAnimationFrame(()=>{ if(Date.now()-lastTick>100) tick(); });
+  setTimeout(tick,100);
+}
+
+function openWallet(){document.getElementById('modalWallet').classList.add('open'); renderAssets();}
+function closeWallet(){document.getElementById('modalWallet').classList.remove('open');}
+async function addAsset(){
+  let ticker=document.getElementById('assetType').value;
+  let qty=parseFloat(document.getElementById('assetQty').value)||1;
+  let y=parseFloat(document.getElementById('assetYield').value)||0;
+  if(ticker!=='CUSTOM'){
+    let price=await fetchPrice(ticker);
+    if(price>0) y = (price * 0.0000001); // exemplo: 0.00001% do valor por segundo como rendimento demo
+    // você pode trocar a lógica para dividendos reais
+  }
+  assets.push({ticker,qty,yield:y});
+  save();
+}
+function togglePause(){paused=!paused; document.getElementById('pauseBtn').innerText=paused?'▶ Continuar':'⏸️ Pausar'; lastTick=Date.now();}
+function resetToday(){if(confirm('Zerar hoje?')){today=0; save();}}
+function setNeon(c){document.documentElement.style.setProperty('--neon',c); localStorage.setItem('cm_neon',c)}
+function setFont(f){document.getElementById('mainValue').style.fontFamily=f; document.getElementById('todayValue').style.fontFamily=f; localStorage.setItem('cm_font',f)}
+function setBg(url){document.getElementById('bg').style.backgroundImage=`url('${url}')`; localStorage.setItem('cm_bg',url)}
+
+let savedNeon=localStorage.getItem('cm_neon'); if(savedNeon) setNeon(savedNeon);
+let savedFont=localStorage.getItem('cm_font'); if(savedFont) setFont(savedFont);
+let savedBg=localStorage.getItem('cm_bg'); if(savedBg) setBg(savedBg);
+
+renderAssets(); tick(); setInterval(tick,100);
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
 </body>
 </html>
