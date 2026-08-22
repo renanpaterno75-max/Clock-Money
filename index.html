@@ -3,143 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Clock-Money v6.3</title>
+<title>Clock-Money v7 Bedroom</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&family=Inter:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&family=Orbitron:wght@700;900&family=Inter:wght@500&display=swap" rel="stylesheet">
 <style>
-  :root{ --neon:#9effbf; --neon-glow: rgba(158,255,191,.5); }
-  body{background:#080808; font-family:'Inter',sans-serif; min-height:100dvh; display:flex; flex-direction:column; align-items:center; overflow:hidden}
+  :root{ --neon:#3dff8a; --neon-glow: rgba(61,255,138,.7); }
+  body{margin:0; min-height:100dvh; background:#000; overflow:hidden; font-family:'Inter',sans-serif}
  .mono{font-family:'JetBrains Mono',monospace}
- .neon{color:var(--neon); text-shadow:0 0 12px var(--neon), 0 0 28px var(--neon-glow)}
- .glass{background:rgba(20,20,20,.9); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,.1)}
- .ring{position:absolute; inset:0; border-radius:50%; background:conic-gradient(var(--neon) var(--pct,0%), rgba(255,255,255,.12) 0); -webkit-mask:radial-gradient(circle, transparent 68%, black 71%); mask:radial-gradient(circle, transparent 68%, black 71%)}
+ .orbitron{font-family:'Orbitron',monospace}
+ .neon{color:var(--neon); text-shadow:0 0 8px var(--neon), 0 0 26px var(--neon-glow)}
+ .bg-bedroom{position:fixed; inset:0; background: url('https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200') center/cover; filter:brightness(0.85)}
+ .vignette{position:fixed; inset:0; background: radial-gradient(circle at 50% 15%, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 65%)}
+ .circle-back{position:absolute; width:300px; height:300px; top:-22px; right:-12px; background:#e8e4d9; border-radius:50%; box-shadow:0 20px 60px rgba(0,0,0,.6)}
+ .circle-front{position:relative; width:320px; height:320px; background:radial-gradient(circle at 30% 30%, #1e1e1e, #050505 70%); border-radius:50%; display:grid; place-items:center; text-align:center; box-shadow:0 30px 90px rgba(0,0,0,.9), inset 0 1px 1px rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.08)}
+ .glass-card{background:rgba(18,18,18,.78); backdrop-filter:blur(18px); border:1px solid rgba(255,255,255,.12)}
 </style>
 </head>
 <body>
+<div class="bg-bedroom" id="bgEl"></div>
+<div class="vignette"></div>
 
-<!-- TOPO -->
-<div class="w-full max-w-[980px] px-5 pt-4 flex justify-between items-center z-10">
-  <div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-white text-black font-bold grid place-items-center text-[11px]">C$</div><div class="text-white text-[13px] font-bold leading-none">CLOCK-MONEY <span class="block text-[9px] text-white/40 tracking-widest font-normal">DARK • NO WALLPAPER</span></div></div>
-  <button onclick="toggleFontPanel()" class="glass px-4 py-2 rounded-full text-white text-xs font-bold">🎨 Fontes</button>
-</div>
-
-<!-- RELÓGIO -->
-<div class="flex-1 w-full grid place-items-center z-10">
-  <div class="relative w-[min(80vw,340px)] h-[min(80vw,340px)] grid place-items-center">
-    <div id="ring" class="ring"></div>
-    <div class="relative w-[88%] h-[88%] rounded-full bg-[radial-gradient(circle_at_30%_25%,#222,#0a0a0a_60%,#000)] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,.9)] grid place-items-center">
-      <div class="text-center">
-        <div id="txtHoje" class="text-white/40 font-bold tracking-[0.5em]">HOJE</div>
-        <div id="valorGrande" class="mono font-extrabold neon mt-2 leading-none">R$ 0,00</div>
-        <div class="flex items-center justify-center gap-2 mt-3 mono text-white/60">
-          <span id="horaAgora">00:00:00</span><span class="w-1 h-1 bg-white/30 rounded-full"></span><span id="segTxt">R$ 0,0000/s</span>
+<!-- TOPO FLUTUANTE COM OS 2 CIRCULOS -->
+<div class="relative z-10 w-full h-[56vh] flex items-center justify-center">
+  <div class="relative w-[340px] h-[340px]">
+    <div class="circle-back"></div>
+    <div class="circle-front">
+      <div>
+        <div id="labelClock" class="tracking-[0.35em] text-[10px] opacity-60" style="color:var(--neon)">CLOCKMONEY</div>
+        <div id="valorGrande" class="orbitron font-black neon mt-1" style="font-size:42px">R$ 0,00</div>
+        <div class="mt-2 mono leading-tight opacity-80" style="font-size:11px; color:var(--neon)">
+          <div>Hoje: <span id="hojeMini">R$ 0,00</span></div>
+          <div>Por seg: <span id="segTxt">R$ 0,0000</span></div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- FOOTER -->
-<div class="w-full max-w-[400px] px-5 pb-[calc(20px+env(safe-area-inset-bottom)+60px)] z-10">
-  <div class="glass rounded-[22px] p-5">
-    <div class="text-[10px] tracking-[0.2em] text-white/30 font-bold">ACUMULADO DE HOJE</div>
-    <div id="acumuladoHoje" class="mono text-[28px] font-extrabold neon mt-1">R$ 0,00</div>
-    <div id="sub" class="mono text-[11px] text-white/50 mt-1">0 ativos</div>
+<!-- CARD ACUMULADO -->
+<div class="relative z-10 px-4 -mt-2">
+  <div class="max-w-[420px] mx-auto glass-card rounded-[20px] p-4">
+    <div class="text-[11px] tracking-[0.18em] text-[#c9a86a] font-bold">ACUMULADO DE HOJE</div>
+    <div id="acumuladoHoje" class="orbitron font-black neon text-[28px] mt-1">R$ 0,00</div>
+    <div id="sub" class="mono text-[12px] text-white/60 mt-1">0 ativo(s) • R$ 0,0000 por segundo</div>
+    <div class="mt-3 h-[3px] bg-white/10 rounded-full overflow-hidden"><div id="goalBar" class="h-full w-0 transition-all duration-700" style="background:var(--neon); box-shadow:0 0 10px var(--neon)"></div></div>
+    <div id="goalText" class="mono text-[10px] text-white/40 mt-2">Meta: R$ 10.000 em 365 dias</div>
   </div>
-  <div class="flex gap-2 mt-3">
-    <button onclick="toggleModal()" class="flex-1 glass py-4 rounded-full text-white font-bold text-sm">◧ Editar carteira</button>
-    <button onclick="togglePause()" id="btnPause" class="glass w-12 h-12 rounded-full text-white">⏸</button>
+
+  <!-- BOTOES IGUAL PRINT -->
+  <div class="max-w-[420px] mx-auto flex gap-2 mt-4 pb-[calc(20px+env(safe-area-inset-bottom))]">
+    <button onclick="toggleModal()" class="flex-1 glass-card rounded-full py-3.5 text-white text-sm font-bold flex items-center justify-center gap-2">🗂️ Editar carteira</button>
+    <button onclick="togglePause()" id="btnPause" class="glass-card rounded-full px-6 py-3.5 text-white text-sm font-bold">⏸️ Pausar</button>
+    <button onclick="resetToday()" class="glass-card w-12 h-12 rounded-full grid place-items-center text-white">↻</button>
   </div>
 </div>
 
-<!-- PAINEL DE FONTES - REESCRITO -->
-<div id="fontPanel" class="fixed inset-0 z-[70] hidden">
+<!-- PAINEL PERSONALIZAR - CORES, FONTES, FUNDO -->
+<div id="fontPanel" class="fixed inset-0 z-[80] hidden">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="toggleFontPanel()"></div>
-  <div class="absolute right-0 top-0 h-full w-[360px] max-w-[92vw] bg-[#121212] border-l border-white/10 p-6 overflow-y-auto">
-    <div class="flex justify-between items-center"><h2 class="text-white font-bold">Tamanho das fontes</h2><button onclick="toggleFontPanel()" class="text-white/40 text-xl">✕</button></div>
+  <div class="absolute right-0 top-0 h-full w-[380px] max-w-[92vw] bg-[#121212] border-l border-white/10 p-6 overflow-auto">
+    <div class="flex justify-between items-center"><h2 class="text-white font-bold">🎨 Personalizar</h2><button onclick="toggleFontPanel()" class="text-white/50 text-xl">✕</button></div>
 
-    <div id="fontControls" class="mt-8 space-y-7">
-      <!-- Gerado via JS -->
+    <div class="mt-6"><div class="text-[10px] tracking-widest text-white/30 font-bold">TAMANHO DAS FONTES</div>
+      <div class="mt-3 space-y-4">
+        <div><div class="flex justify-between text-xs text-white"><span>Valor grande</span><span id="lb-main" class="mono opacity-60">42px</span></div><input type="range" min="30" max="72" value="42" class="w-full accent-white mt-2" oninput="setFont('main',this.value)"></div>
+        <div><div class="flex justify-between text-xs text-white"><span>CLOCKMONEY</span><span id="lb-label" class="mono opacity-60">10px</span></div><input type="range" min="8" max="16" value="10" class="w-full accent-white mt-2" oninput="setFont('label',this.value)"></div>
+        <div><div class="flex justify-between text-xs text-white"><span>Hoje / Por seg</span><span id="lb-sub" class="mono opacity-60">11px</span></div><input type="range" min="9" max="18" value="11" class="w-full accent-white mt-2" oninput="setFont('sub',this.value)"></div>
+      </div>
     </div>
 
-    <div class="mt-8 p-3 rounded-xl bg-white/[0.04] border border-white/10">
-      <div class="text-[11px] font-bold text-white/70">PRESET RECOMENDADO PRA VOCÊ</div>
-      <div class="text-xs text-white/50 mt-1">Valor 48px • HOJE 13px • Hora 14px • /s 14px</div>
-      <button onclick="applyPreset()" class="w-full mt-3 py-2.5 rounded-xl bg-white text-black font-bold text-sm">Aplicar preset</button>
+    <div class="mt-8"><div class="text-[10px] tracking-widest text-white/30 font-bold">COR NEON</div>
+      <div class="flex gap-3 mt-3"><div class="w-8 h-8 rounded-full bg-[#3dff8a] border-2 border-white cursor-pointer" onclick="setNeon('#3dff8a')"></div><div class="w-8 h-8 rounded-full bg-[#00d4ff] cursor-pointer" onclick="setNeon('#00d4ff')"></div><div class="w-8 h-8 rounded-full bg-[#ff3bff] cursor-pointer" onclick="setNeon('#ff3bff')"></div><div class="w-8 h-8 rounded-full bg-[#ffcc00] cursor-pointer" onclick="setNeon('#ffcc00')"></div><div class="w-8 h-8 rounded-full bg-white cursor-pointer" onclick="setNeon('#ffffff')"></div></div>
     </div>
 
-    <div class="mt-6"><div class="text-[10px] tracking-widest text-white/30 font-bold">COR NEON</div>
-      <div class="flex gap-3 mt-3"><button class="w-8 h-8 rounded-full bg-[#9effbf] border-2 border-white" onclick="setNeon('#9effbf')"></button><button class="w-8 h-8 rounded-full bg-[#60a5fa]" onclick="setNeon('#60a5fa')"></button><button class="w-8 h-8 rounded-full bg-white" onclick="setNeon('#ffffff')"></button><button class="w-8 h-8 rounded-full bg-[#fbbf24]" onclick="setNeon('#fbbf24')"></button></div>
+    <div class="mt-8"><div class="text-[10px] tracking-widest text-white/30 font-bold">IMAGEM DE FUNDO</div>
+      <div class="grid grid-cols-2 gap-2 mt-3">
+        <button onclick="setBg('bedroom')" class="py-2 rounded-xl bg-white text-black text-xs font-bold">Quarto (print)</button>
+        <button onclick="setBg('dark')" class="py-2 rounded-xl bg-zinc-800 text-white text-xs">Dark puro</button>
+      </div>
+      <input id="bgInput" class="w-full mt-2 bg-black border border-white/15 rounded-xl p-3 text-xs text-white" placeholder="Cole URL de outra imagem" onchange="setBgCustom(this.value)">
+    </div>
+
+    <div class="mt-8"><div class="text-[10px] tracking-widest text-white/30 font-bold">OBJETIVO</div>
+      <div class="grid grid-cols-2 gap-2 mt-3"><input id="goalValue" type="number" value="10000" class="bg-black border border-white/15 rounded-xl p-3 text-white text-sm" placeholder="R$"><input id="goalDays" type="number" value="365" class="bg-black border border-white/15 rounded-xl p-3 text-white text-sm" placeholder="Dias"></div>
     </div>
   </div>
 </div>
 
-<!-- MODAL CARTEIRA (mantido igual) -->
-<div id="modal" class="fixed inset-0 z-50 translate-y-full transition-transform duration-500"><div class="absolute inset-0 bg-black/80" onclick="toggleModal()"></div><div class="absolute bottom-0 left-0 right-0 bg-[#141414] rounded-t-[28px] max-h-[85dvh] overflow-auto p-6"><div id="lista" class="space-y-2"></div><div class="h-10"></div></div></div>
+<!-- MODAL CARTEIRA COM API -->
+<div id="modal" class="fixed inset-0 z-50 translate-y-full transition-transform duration-500">
+  <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="toggleModal()"></div>
+  <div class="absolute bottom-0 left-0 right-0 bg-[#121212] rounded-t-[28px] border-t border-white/10 max-h-[88dvh] overflow-auto p-6">
+    <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5"></div>
+    <div id="abas" class="flex gap-2 overflow-auto"></div>
+    <div class="flex gap-2 mt-4"><button onclick="setTipo('B3')" id="btnB3" class="flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm">B3 • Ações e FIIs</button><button onclick="setTipo('FIXA')" id="btnFIXA" class="flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm">CDI / Renda fixa</button></div>
+    <div id="fB3" class="mt-4"><input id="busca" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white outline-none" placeholder="MXRF11, PETR4, VALE3..." oninput="buscar(this.value)"><div id="sugestoes" class="mt-2 hidden border border-white/10 rounded-xl overflow-hidden bg-[#1e1e1e]"></div><div class="grid grid-cols-2 gap-3 mt-3"><input id="qtd" type="number" placeholder="QTD" class="bg-black border border-white/15 rounded-xl p-3 text-white font-bold"><input id="total" type="number" placeholder="TOTAL R$" class="bg-black border border-white/15 rounded-xl p-3 text-white font-bold"></div><div id="infoAtivo" class="mt-3 text-xs text-white/60"></div></div>
+    <div id="fFIXA" class="hidden mt-4"><input id="nomeFixa" placeholder="Nome: Caixinha Nubank" class="w-full bg-black border border-white/15 rounded-xl p-4 text-white"><div class="grid grid-cols-2 gap-3 mt-3"><input id="taxaFixa" type="number" value="12.15" placeholder="% a.a." class="bg-black border border-white/15 rounded-xl p-3 text-white"><input id="valorFixa" type="number" placeholder="Valor R$" class="bg-black border border-white/15 rounded-xl p-3 text-white"></div></div>
+    <button onclick="adicionar()" class="w-full bg-white text-black font-bold rounded-2xl p-4 mt-4">+ Adicionar ativo</button>
+    <div id="lista" class="mt-6 space-y-2"></div>
+    <button onclick="toggleFontPanel()" class="w-full mt-6 glass-card py-3 rounded-full text-white text-sm">🎨 Mudar cores, fontes e fundo</button>
+  </div>
+</div>
 
 <script>
-/* ===== CONTROLE DE FONTES REESCRITO ===== */
-const DEFAULT_FONTS = { main:46, hoje:9, hora:10, seg:10, neon:'#9effbf' };
-let fonts = JSON.parse(localStorage.getItem('fontsV63')||'null') || {...DEFAULT_FONTS};
+const POP=["MXRF11","HGLG11","KNRI11","PETR4","VALE3","WEGE3","BTC","ETH"];
+let carteiras=JSON.parse(localStorage.getItem('cm_v7')||'null')||[{id:1,nome:'Principal',ativos:[]}];
+let ativaId=1, sel=null, pausado=false, inicio=new Date(); inicio.setHours(0,0,0,0);
+let fonts=JSON.parse(localStorage.getItem('fonts_v7')||'{"main":42,"label":10,"sub":11,"neon":"#3dff8a","bg":"bedroom"}');
+let tipo='B3';
 
-const FONT_ITEMS = [
-  {key:'main', label:'Valor grande • R$ 0,00', min:30, max:70},
-  {key:'hoje', label:'Rótulo HOJE', min:8, max:20},
-  {key:'hora', label:'Horário • 10:59:45', min:9, max:22},
-  {key:'seg', label:'Rendimento • R$ 0,0000/s', min:9, max:22},
-];
-
-function renderFontControls(){
-  document.getElementById('fontControls').innerHTML = FONT_ITEMS.map(item=>`
-    <div>
-      <div class="flex justify-between"><span class="text-sm text-white font-semibold">${item.label}</span><span class="mono text-xs text-white/50" id="lb-${item.key}">${fonts[item.key]}px</span></div>
-      <input type="range" min="${item.min}" max="${item.max}" value="${fonts[item.key]}" class="w-full mt-3 accent-white"
-        oninput="updateFont('${item.key}', this.value)">
-    </div>
-  `).join('');
+function apply(){
+  document.getElementById('valorGrande').style.fontSize=fonts.main+'px';
+  document.getElementById('labelClock').style.fontSize=fonts.label+'px';
+  document.getElementById('hojeMini').parentElement.parentElement.style.fontSize=fonts.sub+'px';
+  document.getElementById('lb-main').innerText=fonts.main+'px'; document.getElementById('lb-label').innerText=fonts.label+'px'; document.getElementById('lb-sub').innerText=fonts.sub+'px';
+  document.documentElement.style.setProperty('--neon',fonts.neon);
+  if(fonts.bg==='bedroom') document.getElementById('bgEl').style.backgroundImage="url('https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200')";
+  if(fonts.bg==='dark') document.getElementById('bgEl').style.backgroundImage="none";
+  if(fonts.bg?.startsWith('http')) document.getElementById('bgEl').style.backgroundImage=`url('${fonts.bg}')`;
+  localStorage.setItem('fonts_v7',JSON.stringify(fonts));
 }
-
-function updateFont(key, val){
-  fonts[key] = parseInt(val);
-  applyFonts();
-}
-
-function applyFonts(){
-  document.getElementById('valorGrande').style.fontSize = fonts.main + 'px';
-  document.getElementById('txtHoje').style.fontSize = fonts.hoje + 'px';
-  document.getElementById('horaAgora').style.fontSize = fonts.hora + 'px';
-  document.getElementById('segTxt').style.fontSize = fonts.seg + 'px';
-  document.getElementById('fontControls')?.querySelectorAll('[id^="lb-"]').forEach(el=>{
-    const k = el.id.replace('lb-',''); el.innerText = fonts[k]+'px';
-  });
-  document.documentElement.style.setProperty('--neon', fonts.neon);
-  localStorage.setItem('fontsV63', JSON.stringify(fonts));
-}
-
-function applyPreset(){ fonts = {main:48, hoje:13, hora:14, seg:14, neon:fonts.neon}; renderFontControls(); applyFonts(); }
-function setNeon(c){ fonts.neon=c; applyFonts(); }
+function setFont(k,v){ fonts[k]=parseInt(v); apply(); }
+function setNeon(c){ fonts.neon=c; apply(); }
+function setBg(t){ fonts.bg=t; apply(); }
+function setBgCustom(u){ fonts.bg=u; apply(); }
 function toggleFontPanel(){ document.getElementById('fontPanel').classList.toggle('hidden'); }
+function toggleModal(){ document.getElementById('modal').classList.toggle('translate-y-full'); renderLista(); }
+function setTipo(t){ tipo=t; document.getElementById('fB3').classList.toggle('hidden',t!=='B3'); document.getElementById('fFIXA').classList.toggle('hidden',t!=='FIXA'); document.getElementById('btnB3').className=t==='B3'?'flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm':'flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm'; document.getElementById('btnFIXA').className=t==='FIXA'?'flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm':'flex-1 py-3 rounded-xl bg-zinc-800 text-white text-sm'; }
+function buscar(q){ const d=document.getElementById('sugestoes'); let l=POP.filter(x=>x.includes((q||'').toUpperCase())).slice(0,6); if(!q) l=POP.slice(0,5); d.innerHTML=l.map(x=>`<div class="px-4 py-3 text-white text-sm hover:bg-white/10 cursor-pointer" onclick="selectAtivo('${x}')">${x}</div>`).join(''); d.classList.remove('hidden'); }
+async function selectAtivo(t){ document.getElementById('busca').value=t; document.getElementById('sugestoes').classList.add('hidden'); let preco=t==='BTC'?350000:t==='ETH'?18000:10+Math.random()*40; let dy=t.includes('11')?0.11:0.06; try{ const r=await fetch(`https://brapi.dev/api/quote/${t}?token=qtZQumqzTgLyLYyMd5Ph9n`); const j=await r.json(); if(j.results?.[0]?.regularMarketPrice) preco=j.results[0].regularMarketPrice; }catch{} sel={ticker:t,preco,dy}; document.getElementById('infoAtivo').innerText=`${t} • R$ ${preco.toFixed(2)} • ${(dy*100).toFixed(2)}% a.a.`; document.getElementById('qtd').value=10; document.getElementById('total').value=(10*preco).toFixed(2); }
+function save(){ localStorage.setItem('cm_v7',JSON.stringify(carteiras)); }
+function adicionar(){ const c=carteiras.find(x=>x.id===ativaId); if(tipo==='B3'){ if(!sel) return alert('Busque o ativo'); const q=parseInt(document.getElementById('qtd').value)||0; c.ativos.push({id:Date.now(), ticker:sel.ticker, qtd:q, preco:sel.preco, dy:sel.dy, rendDia:(sel.preco*sel.dy/365)*q}); } else { const v=parseFloat(document.getElementById('valorFixa').value)||0; const tx=parseFloat(document.getElementById('taxaFixa').value)||0; const nome=document.getElementById('nomeFixa').value||'Reserva'; c.ativos.push({id:Date.now(), ticker:nome, qtd:1, preco:v, dy:tx/100, rendDia:v*(tx/100)/365}); } save(); renderLista(); }
+function renderLista(){ const c=carteiras.find(x=>x.id===ativaId); document.getElementById('abas').innerHTML=carteiras.map(x=>`<button onclick="ativaId=${x.id};renderLista()" class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap ${x.id===ativaId?'bg-white text-black':'glass-card text-white/60'}">${x.nome}</button>`).join(''); document.getElementById('lista').innerHTML=c.ativos.map(a=>`<div class="bg-white/[0.06] rounded-xl p-3 flex justify-between text-white text-sm"><div><b>${a.ticker}</b> x${a.qtd} <span style="color:var(--neon)">${(a.dy*100).toFixed(2)}%</span><div class="mono text-[10px] opacity-50">R$ ${(a.rendDia/86400).toFixed(7)}/s</div></div><button onclick="carteiras.find(x=>x.id===${ativaId}).ativos=carteiras.find(x=>x.id===${ativaId}).ativos.filter(y=>y.id!==${a.id});save();renderLista()" class="opacity-40">✕</button></div>`).join('')||'<div class="text-center text-white/30 text-xs py-6">Carteira vazia</div>'; const totalDia=c.ativos.reduce((s,a)=>s+a.rendDia,0); window.totalDia=totalDia; document.getElementById('sub').innerText=`${c.ativos.length} ativo(s) • R$ ${(totalDia/86400).toFixed(4)}/s`; }
+function togglePause(){ pausado=!pausado; document.getElementById('btnPause').innerText=pausado?'▶ Continuar':'⏸️ Pausar'; }
+function resetToday(){ inicio=new Date(); inicio.setHours(0,0,0,0); }
 
-/* ===== LÓGICA MÍNIMA PRA RODAR (igual antes) ===== */
-let totalDia = 0.85; // R$ por dia - substitua pela sua carteira
-let inicio = new Date(); inicio.setHours(0,0,0,0); let pausado=false;
-function toggleModal(){document.getElementById('modal').classList.toggle('translate-y-full')}
-function togglePause(){pausado=!pausado; document.getElementById('btnPause').innerText=pausado?'▶':'⏸'}
+setInterval(()=>{ if(pausado) return; const agora=new Date(); const seg=(agora-inicio)/1000; const ps=(window.totalDia||0)/86400; const acum=seg*ps; const fmt='R$ '+acum.toFixed(2).replace('.',','); document.getElementById('valorGrande').innerText=fmt; document.getElementById('acumuladoHoje').innerText=fmt; document.getElementById('hojeMini').innerText=fmt; document.getElementById('segTxt').innerText='R$ '+ps.toFixed(4).replace('.',','); const gv=parseFloat(document.getElementById('goalValue').value)||10000; const gd=parseFloat(document.getElementById('goalDays').value)||365; const pct=Math.min(100, (acum/gv)*100); document.getElementById('goalBar').style.width=pct+'%'; document.getElementById('goalText').innerText=`Meta: ${gv.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})} em ${gd} dias • ${pct.toFixed(1)}%`; },120);
 
-setInterval(()=>{
-  if(pausado) return;
-  const agora = new Date();
-  const segDia = (agora - inicio)/1000;
-  const ps = totalDia/86400;
-  const acum = segDia * ps;
-  document.getElementById('valorGrande').innerText = 'R$ ' + acum.toFixed(2).replace('.',',');
-  document.getElementById('acumuladoHoje').innerText = 'R$ ' + acum.toFixed(2).replace('.',',');
-  document.getElementById('horaAgora').innerText = agora.toLocaleTimeString('pt-BR');
-  document.getElementById('segTxt').innerText = `R$ ${ps.toFixed(4).replace('.',',')}/s`;
-  document.getElementById('ring').style.setProperty('--pct', ((agora.getHours()*3600+agora.getMinutes()*60+agora.getSeconds())/86400*100)+'%');
-},120);
-
-renderFontControls(); applyFonts();
+apply(); renderLista();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
 </body>
 </html>
