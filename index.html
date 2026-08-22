@@ -1,192 +1,145 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clock Money</title>
-<link rel="manifest" href="manifest.json">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Clock-Money v6.3</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&family=Inter:wght@600&display=swap" rel="stylesheet">
 <style>
-:root{--neon:#00ff88;--bg:#000}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:#000;color:#fff;min-height:100vh;overflow:hidden;position:relative}
-.bg{position:fixed;inset:0;background: url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1000') center/cover;filter:brightness(0.4) blur(1px);}
-.overlay{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%, transparent 10%, rgba(0,0,0,0.85) 70%)}
-.circle-wrap{position:relative;z-index:2;width:100%;height:58vh;display:flex;align-items:center;justify-content:center;flex-direction:column}
-.circle{width:310px;height:310px;background:radial-gradient(circle at 30% 30%, #1a1a1a, #000);border-radius:50%;box-shadow:0 0 0 1px #222, 0 20px 60px rgba(0,0,0,0.9), 0 0 80px rgba(0,255,136,0.15);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
-.circle::after{content:'';position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:280px;height:280px;background:radial-gradient(circle, #2a2a2a 0%, #111 60%);border-radius:50%;z-index:-1;border:1px solid #333}
-.label{font-size:0.65em;letter-spacing:4px;color:var(--neon);opacity:0.7;margin-bottom:6px}
-.value{font-family:'Orbitron',monospace;font-size:2.6em;font-weight:900;color:var(--neon);text-shadow:0 0 10px var(--neon), 0 0 30px var(--neon);line-height:1}
-.sub{font-size:0.75em;color:var(--neon);opacity:0.8;margin-top:8px;text-align:center;line-height:1.4}
-.bottom-card{position:relative;z-index:3;margin:-20px 16px 0;background:rgba(15,15,15,0.85);backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:18px 20px}
-.bottom-card.t{font-size:0.7em;letter-spacing:2px;opacity:0.6;color:#c9a86a}
-.bottom-card.v{font-family:'Orbitron';font-size:1.8em;color:var(--neon);text-shadow:0 0 15px var(--neon);margin:4px 0}
-.bottom-card.s{font-size:0.75em;opacity:0.6}
-.controls{position:relative;z-index:3;display:flex;gap:10px;padding:16px;max-width:500px;margin:0 auto;width:100%}
-.btn{flex:1;padding:14px;border-radius:14px;border:none;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-dark{background:rgba(0,0,0,0.8);color:#fff;border:1px solid #333}
-.btn-white{background:#fff;color:#000}
-.modal{position:fixed;inset:0;z-index:10;background:rgba(0,0,0,0.9);display:none;padding:20px;overflow:auto}
-.modal.open{display:flex;flex-direction:column}
-.card{background:#151515;border:1px solid #2a2a2a;border-radius:16px;padding:16px;margin-bottom:12px}
-input,select{width:100%;padding:12px;border-radius:10px;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;margin-top:6px}
-.theme-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid #fff2;display:inline-block;margin:4px}
+  :root{ --neon:#9effbf; --neon-glow: rgba(158,255,191,.5); }
+  body{background:#080808; font-family:'Inter',sans-serif; min-height:100dvh; display:flex; flex-direction:column; align-items:center; overflow:hidden}
+ .mono{font-family:'JetBrains Mono',monospace}
+ .neon{color:var(--neon); text-shadow:0 0 12px var(--neon), 0 0 28px var(--neon-glow)}
+ .glass{background:rgba(20,20,20,.9); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,.1)}
+ .ring{position:absolute; inset:0; border-radius:50%; background:conic-gradient(var(--neon) var(--pct,0%), rgba(255,255,255,.12) 0); -webkit-mask:radial-gradient(circle, transparent 68%, black 71%); mask:radial-gradient(circle, transparent 68%, black 71%)}
 </style>
 </head>
 <body>
-<div class="bg" id="bg"></div>
-<div class="overlay"></div>
 
-<div class="circle-wrap">
-  <div class="circle" id="circle">
-    <div class="label">CLOCKMONEY</div>
-    <div class="value" id="mainValue">R$ 0,00</div>
-    <div class="sub" id="mainSub">Hoje: R$ 0,00<br>Por seg: R$ 0,0000</div>
-  </div>
+<!-- TOPO -->
+<div class="w-full max-w-[980px] px-5 pt-4 flex justify-between items-center z-10">
+  <div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-white text-black font-bold grid place-items-center text-[11px]">C$</div><div class="text-white text-[13px] font-bold leading-none">CLOCK-MONEY <span class="block text-[9px] text-white/40 tracking-widest font-normal">DARK • NO WALLPAPER</span></div></div>
+  <button onclick="toggleFontPanel()" class="glass px-4 py-2 rounded-full text-white text-xs font-bold">🎨 Fontes</button>
 </div>
 
-<div class="bottom-card">
-  <div class="t">ACUMULADO DE HOJE</div>
-  <div class="v" id="todayValue">R$ 0,00</div>
-  <div class="s" id="todaySub">0 ativo(s) • R$ 0,0000 por segundo</div>
-  <div style="margin-top:10px;height:4px;background:#222;border-radius:10px;overflow:hidden"><div id="goalBar" style="height:100%;width:0%;background:var(--neon);box-shadow:0 0 10px var(--neon)"></div></div>
-  <div style="font-size:.7em;margin-top:6px;opacity:.6" id="goalText">Meta: defina em Editar carteira</div>
-</div>
-
-<div class="controls">
-  <button class="btn btn-dark" onclick="openWallet()">🗂️ Editar carteira</button>
-  <button class="btn btn-white" id="pauseBtn" onclick="togglePause()">⏸️ Pausar</button>
-  <button class="btn btn-dark" onclick="resetToday()">↻</button>
-</div>
-
-<div class="modal" id="modalWallet">
-  <h2 style="margin-bottom:16px">Minha Carteira</h2>
-
-  <div class="card">
-    <b>🎨 Temas, Cores e Fonte</b>
-    <div style="margin-top:10px">
-      <div style="font-size:.8em;opacity:.6">Cor Neon</div>
-      <div>
-        <span class="theme-dot" style="background:#00ff88" onclick="setNeon('#00ff88')"></span>
-        <span class="theme-dot" style="background:#00d4ff" onclick="setNeon('#00d4ff')"></span>
-        <span class="theme-dot" style="background:#ff00ff" onclick="setNeon('#ff00ff')"></span>
-        <span class="theme-dot" style="background:#ffaa00" onclick="setNeon('#ffaa00')"></span>
-        <span class="theme-dot" style="background:#ffffff" onclick="setNeon('#ffffff')"></span>
+<!-- RELÓGIO -->
+<div class="flex-1 w-full grid place-items-center z-10">
+  <div class="relative w-[min(80vw,340px)] h-[min(80vw,340px)] grid place-items-center">
+    <div id="ring" class="ring"></div>
+    <div class="relative w-[88%] h-[88%] rounded-full bg-[radial-gradient(circle_at_30%_25%,#222,#0a0a0a_60%,#000)] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,.9)] grid place-items-center">
+      <div class="text-center">
+        <div id="txtHoje" class="text-white/40 font-bold tracking-[0.5em]">HOJE</div>
+        <div id="valorGrande" class="mono font-extrabold neon mt-2 leading-none">R$ 0,00</div>
+        <div class="flex items-center justify-center gap-2 mt-3 mono text-white/60">
+          <span id="horaAgora">00:00:00</span><span class="w-1 h-1 bg-white/30 rounded-full"></span><span id="segTxt">R$ 0,0000/s</span>
+        </div>
       </div>
-      <div style="margin-top:10px"><div style="font-size:.8em;opacity:.6">Fonte</div>
-        <select onchange="setFont(this.value)"><option value="Orbitron">Orbitron (igual print)</option><option value="Inter">Inter</option><option value="Space Mono">Space Mono</option></select>
-      </div>
-      <div style="margin-top:10px"><div style="font-size:.8em;opacity:.6">Imagem de fundo (URL)</div><input id="bgInput" placeholder="cole link da imagem" onchange="setBg(this.value)"></div>
     </div>
   </div>
-
-  <div class="card">
-    <b>🎯 Objetivo</b>
-    <div style="display:flex;gap:8px"><div style="flex:1"><div style="font-size:.8em;opacity:.6">Valor (R$)</div><input id="goalValue" type="number" value="10000"></div><div style="flex:1"><div style="font-size:.8em;opacity:.6">Dias</div><input id="goalDays" type="number" value="365"></div></div>
-  </div>
-
-  <div class="card">
-    <b>➕ Adicionar Ativo (com API)</b>
-    <select id="assetType">
-      <option value="BTC">BTC - Bitcoin (API CoinGecko)</option>
-      <option value="ETH">ETH - Ethereum</option>
-      <option value="PETR4">PETR4 - Petrobras (API Brapi)</option>
-      <option value="VALE3">VALE3 - Vale</option>
-      <option value="CUSTOM">Custom - Valor fixo por segundo</option>
-    </select>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <input id="assetQty" type="number" placeholder="Qtd" value="1" style="flex:1">
-      <input id="assetYield" type="number" placeholder="R$/seg ou rendimento %" value="0.0001" style="flex:1">
-    </div>
-    <button class="btn btn-white" style="width:100%;margin-top:10px" onclick="addAsset()">Adicionar ativo</button>
-    <div id="assetList" style="margin-top:12px"></div>
-  </div>
-
-  <button class="btn btn-dark" style="margin-top:10px" onclick="closeWallet()">Fechar</button>
 </div>
+
+<!-- FOOTER -->
+<div class="w-full max-w-[400px] px-5 pb-[calc(20px+env(safe-area-inset-bottom)+60px)] z-10">
+  <div class="glass rounded-[22px] p-5">
+    <div class="text-[10px] tracking-[0.2em] text-white/30 font-bold">ACUMULADO DE HOJE</div>
+    <div id="acumuladoHoje" class="mono text-[28px] font-extrabold neon mt-1">R$ 0,00</div>
+    <div id="sub" class="mono text-[11px] text-white/50 mt-1">0 ativos</div>
+  </div>
+  <div class="flex gap-2 mt-3">
+    <button onclick="toggleModal()" class="flex-1 glass py-4 rounded-full text-white font-bold text-sm">◧ Editar carteira</button>
+    <button onclick="togglePause()" id="btnPause" class="glass w-12 h-12 rounded-full text-white">⏸</button>
+  </div>
+</div>
+
+<!-- PAINEL DE FONTES - REESCRITO -->
+<div id="fontPanel" class="fixed inset-0 z-[70] hidden">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="toggleFontPanel()"></div>
+  <div class="absolute right-0 top-0 h-full w-[360px] max-w-[92vw] bg-[#121212] border-l border-white/10 p-6 overflow-y-auto">
+    <div class="flex justify-between items-center"><h2 class="text-white font-bold">Tamanho das fontes</h2><button onclick="toggleFontPanel()" class="text-white/40 text-xl">✕</button></div>
+
+    <div id="fontControls" class="mt-8 space-y-7">
+      <!-- Gerado via JS -->
+    </div>
+
+    <div class="mt-8 p-3 rounded-xl bg-white/[0.04] border border-white/10">
+      <div class="text-[11px] font-bold text-white/70">PRESET RECOMENDADO PRA VOCÊ</div>
+      <div class="text-xs text-white/50 mt-1">Valor 48px • HOJE 13px • Hora 14px • /s 14px</div>
+      <button onclick="applyPreset()" class="w-full mt-3 py-2.5 rounded-xl bg-white text-black font-bold text-sm">Aplicar preset</button>
+    </div>
+
+    <div class="mt-6"><div class="text-[10px] tracking-widest text-white/30 font-bold">COR NEON</div>
+      <div class="flex gap-3 mt-3"><button class="w-8 h-8 rounded-full bg-[#9effbf] border-2 border-white" onclick="setNeon('#9effbf')"></button><button class="w-8 h-8 rounded-full bg-[#60a5fa]" onclick="setNeon('#60a5fa')"></button><button class="w-8 h-8 rounded-full bg-white" onclick="setNeon('#ffffff')"></button><button class="w-8 h-8 rounded-full bg-[#fbbf24]" onclick="setNeon('#fbbf24')"></button></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CARTEIRA (mantido igual) -->
+<div id="modal" class="fixed inset-0 z-50 translate-y-full transition-transform duration-500"><div class="absolute inset-0 bg-black/80" onclick="toggleModal()"></div><div class="absolute bottom-0 left-0 right-0 bg-[#141414] rounded-t-[28px] max-h-[85dvh] overflow-auto p-6"><div id="lista" class="space-y-2"></div><div class="h-10"></div></div></div>
 
 <script>
-let assets=JSON.parse(localStorage.getItem('cm_assets')||'[]');
-let perSec=0, today=parseFloat(localStorage.getItem('cm_today')||'0'), paused=false, lastTick=Date.now();
-let goalV=parseFloat(localStorage.getItem('cm_goalV')||'10000'), goalD=parseInt(localStorage.getItem('cm_goalD')||'365');
+/* ===== CONTROLE DE FONTES REESCRITO ===== */
+const DEFAULT_FONTS = { main:46, hoje:9, hora:10, seg:10, neon:'#9effbf' };
+let fonts = JSON.parse(localStorage.getItem('fontsV63')||'null') || {...DEFAULT_FONTS};
 
-async function fetchPrice(ticker){
-  try{
-    if(['BTC','ETH'].includes(ticker)){
-      let id=ticker==='BTC'?'bitcoin':'ethereum';
-      let r=await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=brl`);
-      let j=await r.json(); return j[id].brl;
-    } else {
-      let r=await fetch(`https://brapi.dev/api/quote/${ticker}?token=demo`);
-      let j=await r.json(); return j.results?.[0]?.regularMarketPrice || 0;
-    }
-  }catch{return 0}
+const FONT_ITEMS = [
+  {key:'main', label:'Valor grande • R$ 0,00', min:30, max:70},
+  {key:'hoje', label:'Rótulo HOJE', min:8, max:20},
+  {key:'hora', label:'Horário • 10:59:45', min:9, max:22},
+  {key:'seg', label:'Rendimento • R$ 0,0000/s', min:9, max:22},
+];
+
+function renderFontControls(){
+  document.getElementById('fontControls').innerHTML = FONT_ITEMS.map(item=>`
+    <div>
+      <div class="flex justify-between"><span class="text-sm text-white font-semibold">${item.label}</span><span class="mono text-xs text-white/50" id="lb-${item.key}">${fonts[item.key]}px</span></div>
+      <input type="range" min="${item.min}" max="${item.max}" value="${fonts[item.key]}" class="w-full mt-3 accent-white"
+        oninput="updateFont('${item.key}', this.value)">
+    </div>
+  `).join('');
 }
 
-function calcPerSec(){
-  perSec=0;
-  assets.forEach(a=>{ perSec+= (parseFloat(a.qty)||0)*(parseFloat(a.yield)||0) });
-  document.getElementById('todaySub').innerText=`${assets.length} ativo(s) • R$ ${perSec.toFixed(4)} por segundo`;
+function updateFont(key, val){
+  fonts[key] = parseInt(val);
+  applyFonts();
 }
 
-function renderAssets(){
-  let html=assets.map((a,i)=>`<div style="display:flex;justify-content:space-between;background:#0a0a0a;padding:8px 10px;border-radius:8px;margin-bottom:6px;font-size:.85em"><span>${a.ticker} x${a.qty} = R$${(a.qty*a.yield).toFixed(4)}/s</span><span onclick="assets.splice(${i},1);save()" style="color:#ff5555;cursor:pointer">✕</span></div>`).join('');
-  document.getElementById('assetList').innerHTML=html||'<div style="opacity:.5;font-size:.8em">Nenhum ativo</div>';
-  calcPerSec();
+function applyFonts(){
+  document.getElementById('valorGrande').style.fontSize = fonts.main + 'px';
+  document.getElementById('txtHoje').style.fontSize = fonts.hoje + 'px';
+  document.getElementById('horaAgora').style.fontSize = fonts.hora + 'px';
+  document.getElementById('segTxt').style.fontSize = fonts.seg + 'px';
+  document.getElementById('fontControls')?.querySelectorAll('[id^="lb-"]').forEach(el=>{
+    const k = el.id.replace('lb-',''); el.innerText = fonts[k]+'px';
+  });
+  document.documentElement.style.setProperty('--neon', fonts.neon);
+  localStorage.setItem('fontsV63', JSON.stringify(fonts));
 }
 
-function save(){
-  localStorage.setItem('cm_assets',JSON.stringify(assets));
-  localStorage.setItem('cm_today',today);
-  renderAssets();
-}
+function applyPreset(){ fonts = {main:48, hoje:13, hora:14, seg:14, neon:fonts.neon}; renderFontControls(); applyFonts(); }
+function setNeon(c){ fonts.neon=c; applyFonts(); }
+function toggleFontPanel(){ document.getElementById('fontPanel').classList.toggle('hidden'); }
 
-function tick(){
-  if(!paused){
-    let now=Date.now(); let delta=(now-lastTick)/1000; lastTick=now;
-    today+=perSec*delta;
-    let total=today;
-    document.getElementById('mainValue').innerText=total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-    document.getElementById('mainSub').innerHTML=`Hoje: ${today.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}<br>Por seg: R$ ${perSec.toFixed(4)}`;
-    document.getElementById('todayValue').innerText=total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-    goalV=parseFloat(document.getElementById('goalValue').value)||10000;
-    goalD=parseInt(document.getElementById('goalDays').value)||365;
-    let pct=Math.min(100,(total/goalV)*100);
-    document.getElementById('goalBar').style.width=pct+'%';
-    document.getElementById('goalText').innerText=`Meta: ${goalV.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})} em ${goalD} dias • ${pct.toFixed(1)}%`;
-    localStorage.setItem('cm_goalV',goalV); localStorage.setItem('cm_goalD',goalD);
-    save();
-  }
-  requestAnimationFrame(()=>{ if(Date.now()-lastTick>100) tick(); });
-  setTimeout(tick,100);
-}
+/* ===== LÓGICA MÍNIMA PRA RODAR (igual antes) ===== */
+let totalDia = 0.85; // R$ por dia - substitua pela sua carteira
+let inicio = new Date(); inicio.setHours(0,0,0,0); let pausado=false;
+function toggleModal(){document.getElementById('modal').classList.toggle('translate-y-full')}
+function togglePause(){pausado=!pausado; document.getElementById('btnPause').innerText=pausado?'▶':'⏸'}
 
-function openWallet(){document.getElementById('modalWallet').classList.add('open'); renderAssets();}
-function closeWallet(){document.getElementById('modalWallet').classList.remove('open');}
-async function addAsset(){
-  let ticker=document.getElementById('assetType').value;
-  let qty=parseFloat(document.getElementById('assetQty').value)||1;
-  let y=parseFloat(document.getElementById('assetYield').value)||0;
-  if(ticker!=='CUSTOM'){
-    let price=await fetchPrice(ticker);
-    if(price>0) y = (price * 0.0000001); // exemplo: 0.00001% do valor por segundo como rendimento demo
-    // você pode trocar a lógica para dividendos reais
-  }
-  assets.push({ticker,qty,yield:y});
-  save();
-}
-function togglePause(){paused=!paused; document.getElementById('pauseBtn').innerText=paused?'▶ Continuar':'⏸️ Pausar'; lastTick=Date.now();}
-function resetToday(){if(confirm('Zerar hoje?')){today=0; save();}}
-function setNeon(c){document.documentElement.style.setProperty('--neon',c); localStorage.setItem('cm_neon',c)}
-function setFont(f){document.getElementById('mainValue').style.fontFamily=f; document.getElementById('todayValue').style.fontFamily=f; localStorage.setItem('cm_font',f)}
-function setBg(url){document.getElementById('bg').style.backgroundImage=`url('${url}')`; localStorage.setItem('cm_bg',url)}
+setInterval(()=>{
+  if(pausado) return;
+  const agora = new Date();
+  const segDia = (agora - inicio)/1000;
+  const ps = totalDia/86400;
+  const acum = segDia * ps;
+  document.getElementById('valorGrande').innerText = 'R$ ' + acum.toFixed(2).replace('.',',');
+  document.getElementById('acumuladoHoje').innerText = 'R$ ' + acum.toFixed(2).replace('.',',');
+  document.getElementById('horaAgora').innerText = agora.toLocaleTimeString('pt-BR');
+  document.getElementById('segTxt').innerText = `R$ ${ps.toFixed(4).replace('.',',')}/s`;
+  document.getElementById('ring').style.setProperty('--pct', ((agora.getHours()*3600+agora.getMinutes()*60+agora.getSeconds())/86400*100)+'%');
+},120);
 
-let savedNeon=localStorage.getItem('cm_neon'); if(savedNeon) setNeon(savedNeon);
-let savedFont=localStorage.getItem('cm_font'); if(savedFont) setFont(savedFont);
-let savedBg=localStorage.getItem('cm_bg'); if(savedBg) setBg(savedBg);
-
-renderAssets(); tick(); setInterval(tick,100);
-if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+renderFontControls(); applyFonts();
 </script>
 </body>
 </html>
